@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站性能监控面板</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --good: #4CAF50;
+            --warn: #FFC107;
+            --bad: #F44336;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --bg-color: #f5f7fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.02);
+            border-radius: 4px;
+        }
+        
+        .metric-name {
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-weight: bold;
+        }
+        
+        .good { color: var(--good); }
+        .warn { color: var(--warn); }
+        .bad { color: var(--bad); }
+        
+        .error-list {
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .error-item {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+            color: var(--bad);
+        }
+        
+        .score-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .score-bar {
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto;
+            max-width: 300px;
+        }
+        
+        .score-fill {
+            height: 100%;
+            transition: width 1s ease-out;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        .last-updated {
+            text-align: right;
+            font-size: 0.8em;
+            color: #777;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="score-container">
+        <h1>网站性能监控</h1>
+        <div class="score-value" id="performance-score">-</div>
+        <div class="score-bar">
+            <div class="score-fill" id="score-bar-fill"></div>
+        </div>
+    </div>
+    
+    <div class="dashboard">
+        <!-- 核心指标 -->
+        <div class="card">
+            <h2>核心性能指标</h2>
+            <div id="core-metrics"></div>
+            <div class="last-updated" id="last-updated"></div>
+        </div>
+        
+        <!-- 系统信息 -->
+        <div class="card">
+            <h2>系统信息</h2>
+            <div id="system-info"></div>
+        </div>
+        
+        <!-- 资源加载 -->
+        <div class="card">
+            <h2>资源加载时间</h2>
+            <canvas id="resource-chart"></canvas>
+        </div>
+        
+        <!-- 性能趋势 -->
+        <div class="card">
+            <h2>性能趋势</h2>
+            <canvas id="trend-chart"></canvas>
+        </div>
+        
+        <!-- 错误日志 -->
+        <div class="card">
+            <h2>错误日志</h2>
+            <div id="error-list" class="error-list"></div>
+        </div>
+        
+        <!-- 网络信息 -->
+        <div class="card">
+            <h2>网络信息</h2>
+            <div id="network-info"></div>
+        </div>
+    </div>
+
+    <script>
+        // 主监控函数
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化错误监控
+            initErrorMonitoring();
+            
+            // 监听页面加载性能
+            window.addEventListener('load', () => {
+                const metrics = collectPerformanceMetrics();
+                displayAllMetrics(metrics);
+                saveToLocalStorage(metrics);
+                updateCharts();
+                
+                // 开始监控用户交互
+                startInteractionMonitoring();
+                
+                // 定期更新内存和网络信息
+                setInterval(() => {
+                    updateSystemInfo();
+                }, 3000);
+            });
+            
+            // 加载历史数据
+            loadHistory();
+        });
+        
+        // 收集性能指标
+        function collectPerformanceMetrics() {
+            const perf = performance.timing;
+            const now = new Date();
+            
+            // 基础指标
+            const metrics = {
+                timestamp: now.toISOString(),
+                '页面加载总时间': perf.loadEventEnd - perf.navigationStart,
+                'DNS查询时间': perf.domainLookupEnd - perf.domainLookupStart,
+                'TCP连接时间': perf.connectEnd - perf.connectStart,
+                'SSL握手时间': perf.secureConnectionStart ? perf.connectEnd - perf.secureConnectionStart : 0,
+                '首字节时间(TTFB)': perf.responseStart - perf.requestStart,
+                'DOM解析时间': perf.domComplete - perf.domInteractive,
+                '资源加载时间': perf.loadEventStart - perf.domContentLoadedEventEnd,
+                '白屏时间': perf.responseStart - perf.navigationStart,
+                '页面重定向时间': perf.redirectEnd - perf.redirectStart || 0,
+                'FCP(首次内容绘制)': getFCP(),
+                'LCP(最大内容绘制)': getLCP(),
+                'CLS(布局偏移)': getCLS(),
+                '用户交互延迟': 0 // 初始值，会被更新
+            };
+            
+            // 添加内存信息
+            const memoryInfo = getMemoryInfo();
+            Object.assign(metrics, memoryInfo);
+            
+            // 添加网络信息
+            const networkInfo = getNetworkInfo();
+            Object.assign(metrics, networkInfo);
+            
+            return metrics;
+        }
+        
+        // 获取首次内容绘制时间(FCP)
+        function getFCP() {
+            const entries = performance.getEntriesByName('first-contentful-paint');
+            return entries.length ? Math.round(entries[0].startTime) : 0;
+        }
+        
+        // 获取最大内容绘制时间(LCP) - 模拟
+        function getLCP() {
+            return Math.round(performance.now() * 0.8);
+        }
+        
+        // 获取布局偏移分数(CLS) - 模拟
+        function getCLS() {
+            return Math.random() * 0.1;
+        }
+        
+        // 获取内存信息
+        function getMemoryInfo() {
+            if (window.performance && performance.memory) {
+                const mem = performance.memory;
+                return {
+                    'JS堆使用量': Math.round(mem.usedJSHeapSize / 1024 / 1024 * 100) / 100 + ' MB',
+                    'JS堆总量': Math.round(mem.totalJSHeapSize / 1024 / 1024 * 100) / 100 + ' MB',
+                    '内存限制': Math.round(mem.jsHeapSizeLimit / 1024 / 1024 * 100) / 100 + ' MB'
+                };
+            }
+            return { '内存信息': '不支持' };
+        }
+        
+        // 获取网络信息
+        function getNetworkInfo() {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (connection) {
+                return {
+                    '网络类型': connection.type || '未知',
+                    '有效类型': connection.effectiveType || '未知',
+                    '下行速度': connection.downlink + ' Mbps',
+                    'RTT延迟': connection.rtt + ' ms',
+                    '数据节省': connection.saveData ? '开启' : '关闭'
+                };
+            }
+            return { '网络信息': '不支持' };
+        }
+        
+        // 显示所有指标
+        function displayAllMetrics(metrics) {
+            displayCoreMetrics(metrics);
+            displaySystemInfo(metrics);
+            displayNetworkInfo(metrics);
+            displayPerformanceScore(metrics);
+            updateLastUpdated();
+        }
+        
+        // 显示核心指标
+        function displayCoreMetrics(metrics) {
+            const coreMetrics = [
+                '页面加载总时间', 'DNS查询时间', 'TCP连接时间', 
+                'SSL握手时间', '首字节时间(TTFB)', 'FCP(首次内容绘制)',
+                'LCP(最大内容绘制)', 'CLS(布局偏移)'
+            ];
+            
+            const container = document.getElementById('core-metrics');
+            container.innerHTML = '';
+            
+            coreMetrics.forEach(name => {
+                if (metrics[name] !== undefined) {
+                    const value = typeof metrics[name] === 'number' ? 
+                        metrics[name] + 'ms' : metrics[name];
+                    
+                    const div = document.createElement('div');
+                    div.className = 'metric';
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'metric-name';
+                    nameSpan.textContent = name + ': ';
+                    
+                    const valueSpan = document.createElement('span');
+                    valueSpan.className = 'metric-value';
+                    valueSpan.textContent = value;
+                    
+                    // 根据阈值设置颜色
+                    if (typeof metrics[name] === 'number' && name.includes('时间')) {
+                        if (metrics[name] > 1000) valueSpan.classList.add('bad');
+                        else if (metrics[name] > 500) valueSpan.classList.add('warn');
+                        else valueSpan.classList.add('good');
+                    }
+                    
+                    div.appendChild(nameSpan);
+                    div.appendChild(valueSpan);
+                    container.appendChild(div);
+                }
+            });
+        }
+        
+        // 显示系统信息
+        function displaySystemInfo(metrics) {
+            const systemInfo = [
+                'JS堆使用量', 'JS堆总量', '内存限制'
+            ];
+            
+            const container = document.getElementById('system-info');
+            container.innerHTML = '';
+            
+            systemInfo.forEach(name => {
+                if (metrics[name]) {
+                    const div = document.createElement('div');
+                    div.className = 'metric';
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'metric-name';
+                    nameSpan.textContent = name + ': ';
+                    
+                    const valueSpan = document.createElement('span');
+                    valueSpan.className = 'metric-value';
+                    valueSpan.textContent = metrics[name];
+                    
+                    div.appendChild(nameSpan);
+                    div.appendChild(valueSpan);
+                    container.appendChild(div);
+                }
+            });
+        }
+        
+        // 显示网络信息
+        function displayNetworkInfo(metrics) {
+            const networkInfo = [
+                '网络类型', '有效类型', '下行速度', 'RTT延迟', '数据节省'
+            ];
+            
+            const container = document.getElementById('network-info');
+            container.innerHTML = '';
+            
+            networkInfo.forEach(name => {
+                if (metrics[name]) {
+                    const div = document.createElement('div');
+                    div.className = 'metric';
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'metric-name';
+                    nameSpan.textContent = name + ': ';
+                    
+                    const valueSpan = document.createElement('span');
+                    valueSpan.className = 'metric-value';
+                    valueSpan.textContent = metrics[name];
+                    
+                    // 为网络延迟设置颜色
+                    if (name === 'RTT延迟') {
+                        const rtt = parseInt(metrics[name]);
+                        if (rtt > 200) valueSpan.classList.add('bad');
+                        else if (rtt > 100) valueSpan.classList.add('warn');
+                        else valueSpan.classList.add('good');
+                    }
+                    
+                    div.appendChild(nameSpan);
+                    div.appendChild(valueSpan);
+                    container.appendChild(div);
+                }
+            });
+        }
+        
+        // 显示性能评分
+        function displayPerformanceScore(metrics) {
+            const score = calculatePerformanceScore(metrics);
+            const scoreElement = document.getElementById('performance-score');
+            const scoreBar = document.getElementById('score-bar-fill');
+            
+            scoreElement.textContent = score + '/100';
+            scoreBar.style.width = score + '%';
+            
+            // 设置颜色
+            if (score > 80) {
+                scoreBar.style.backgroundColor = 'var(--good)';
+                scoreElement.style.color = 'var(--good)';
+            } else if (score > 60) {
+                scoreBar.style.backgroundColor = 'var(--warn)';
+                scoreElement.style.color = 'var(--warn)';
+            } else {
+                scoreBar.style.backgroundColor = 'var(--bad)';
+                scoreElement.style.color = 'var(--bad)';
+            }
+        }
+        
+        // 计算性能评分
+        function calculatePerformanceScore(metrics) {
+            let score = 100;
+            
+            // 扣分规则
+            if (metrics['页面加载总时间'] > 3000) score -= 25;
+            else if (metrics['页面加载总时间'] > 2000) score -= 15;
+            else if (metrics['页面加载总时间'] > 1000) score -= 5;
+            
+            if (metrics['FCP(首次内容绘制)'] > 2000) score -= 15;
+            else if (metrics['FCP(首次内容绘制)'] > 1000) score -= 5;
+            
+            if (metrics['LCP(最大内容绘制)'] > 2500) score -= 10;
+            
+            if (metrics['CLS(布局偏移)'] > 0.25) score -= 10;
+            else if (metrics['CLS(布局偏移)'] > 0.1) score -= 5;
+            
+            if (metrics['DNS查询时间'] > 200) score -= 5;
+            if (metrics['TCP连接时间'] > 300) score -= 5;
+            if (metrics['SSL握手时间'] > 400) score -= 5;
+            
+            // 确保分数在0-100之间
+            return Math.max(0, Math.min(100, Math.round(score)));
+        }
+        
+        // 更新最后更新时间
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('last-updated').textContent = 
+                '最后更新: ' + now.toLocaleTimeString();
+        }
+        
+        // 初始化错误监控
+        function initErrorMonitoring() {
+            // JavaScript错误
+            window.addEventListener('error', (event) => {
+                logError({
+                    type: 'JavaScript Error',
+                    message: event.message,
+                    file: event.filename,
+                    line: event.lineno,
+                    col: event.colno,
+                    timestamp: new Date().toLocaleTimeString()
+                });
+            });
+            
+            // 未处理的Promise rejection
+            window.addEventListener('unhandledrejection', (event) => {
+                logError({
+                    type: 'Unhandled Rejection',
+                    reason: event.reason,
+                    timestamp: new Date().toLocaleTimeString()
+                });
+            });
+        }
+        
+        // 记录错误
+        function logError(error) {
+            const errorList = document.getElementById('error-list');
+            const item = document.createElement('div');
+            item.className = 'error-item';
+            
+            let errorText = `[${error.timestamp}] ${error.type}: `;
+            errorText += error.message || error.reason || '未知错误';
+            if (error.file) {
+                errorText += ` (${error.file}:${error.line}:${error.col})`;
+            }
+            
+            item.textContent = errorText;
+            errorList.prepend(item);
+        }
+        
+        // 开始监控用户交互
+        function startInteractionMonitoring() {
+            let lastInteractionTime = performance.now();
+            
+            ['click', 'keydown', 'scroll'].forEach(event => {
+                window.addEventListener(event, () => {
+                    const now = performance.now();
+                    const delay = now - lastInteractionTime;
+                    lastInteractionTime = now;
+                    
+                    // 更新指标显示
+                    const coreMetrics = document.getElementById('core-metrics');
+                    const interactionMetric = Array.from(coreMetrics.children)
+                        .find(el => el.textContent.includes('用户交互延迟'));
+                    
+                    if (interactionMetric) {
+                        interactionMetric.querySelector('.metric-value').textContent = 
+                            Math.round(delay) + 'ms';
+                        
+                        // 设置颜色
+                        const valueSpan = interactionMetric.querySelector('.metric-value');
+                        valueSpan.className = 'metric-value';
+                        if (delay > 100) valueSpan.classList.add('bad');
+                        else if (delay > 50) valueSpan.classList.add('warn');
+                        else valueSpan.classList.add('good');
+                    }
+                }, { passive: true });
+            });
+        }
+        
+        // 保存到本地存储
+        function saveToLocalStorage(metrics) {
+            const history = JSON.parse(localStorage.getItem('perfHistory')) || [];
+            history.push(metrics);
+            
+            // 只保留最近50条记录
+            if (history.length > 50) history.shift();
+            
+            localStorage.setItem('perfHistory', JSON.stringify(history));
+        }
+        
+        // 从本地存储加载历史数据
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('perfHistory')) || [];
+            if (history.length > 0) {
+                // 显示最近一次的数据
+                displayAllMetrics(history[history.length - 1]);
+            }
+        }
+        
+        // 更新系统信息
+        function updateSystemInfo() {
+            const metrics = {
+                ...getMemoryInfo(),
+                ...getNetworkInfo()
+            };
+            displaySystemInfo(metrics);
+            displayNetworkInfo(metrics);
+        }
+        
+        // 更新图表
+        function updateCharts() {
+            const history = JSON.parse(localStorage.getItem('perfHistory')) || [];
+            
+            // 资源加载图表
+            updateResourceChart();
+            
+            // 性能趋势图表
+            if (history.length > 1) {
+                updateTrendChart(history);
+            }
+        }
+        
+        // 更新资源加载图表
+        function updateResourceChart() {
+            const resources = performance.getEntriesByType('resource');
+            if (resources.length === 0) return;
+            
+            // 只显示前10个资源，按加载时间排序
+            const sortedResources = [...resources]
+                .sort((a, b) => b.duration - a.duration)
+                .slice(0, 10);
+            
+            const ctx = document.getElementById('resource-chart').getContext('2d');
+            
+            if (window.resourceChart) {
+                window.resourceChart.destroy();
+            }
+            
+            window.resourceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedResources.map(res => {
+                        const url = new URL(res.name);
+                        return url.pathname.split('/').pop() || url.hostname;
+                    }),
+                    datasets: [{
+                        label: '加载时间 (ms)',
+                        data: sortedResources.map(res => Math.round(res.duration)),
+                        backgroundColor: sortedResources.map(res => {
+                            if (res.duration > 1000) return 'rgba(255, 99, 132, 0.7)';
+                            if (res.duration > 500) return 'rgba(255, 159, 64, 0.7)';
+                            return 'rgba(75, 192, 192, 0.7)';
+                        }),
+                        borderColor: sortedResources.map(res => {
+                            if (res.duration > 1000) return 'rgb(255, 99, 132)';
+                            if (res.duration > 500) return 'rgb(255, 159, 64)';
+                            return 'rgb(75, 192, 192)';
+                        }),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 更新趋势图表
+        function updateTrendChart(history) {
+            const ctx = document.getElementById('trend-chart').getContext('2d');
+            const labels = history.map((item, index) => index + 1);
+            
+            if (window.trendChart) {
+                window.trendChart.destroy();
+            }
+            
+            window.trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '页面加载时间 (ms)',
+                            data: history.map(item => item['页面加载总时间']),
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'FCP (ms)',
+                            data: history.map(item => item['FCP(首次内容绘制)'] || 0),
+                            borderColor: 'rgb(54, 162, 235)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

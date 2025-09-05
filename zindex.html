@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>HTML5音视频标签详解</title>
+	<style>
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			line-height: 1.6;
+			color: #333;
+			background-color: #f5f7fa;
+			padding: 20px;
+			max-width: 1200px;
+			margin: 0 auto;
+		}
+
+		header {
+			text-align: center;
+			margin-bottom: 40px;
+			padding: 20px;
+			background: linear-gradient(135deg, #6e8efb, #a777e3);
+			color: white;
+			border-radius: 10px;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		h1 {
+			margin-bottom: 10px;
+		}
+
+		h2 {
+			margin: 25px 0 15px;
+			padding-bottom: 10px;
+			border-bottom: 2px solid #6e8efb;
+			color: #444;
+		}
+
+		h3 {
+			margin: 20px 0 10px;
+			color: #555;
+		}
+
+		section {
+			background: white;
+			padding: 25px;
+			margin-bottom: 30px;
+			border-radius: 10px;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+		}
+
+		.media-container {
+			margin: 20px 0;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 20px;
+			justify-content: center;
+		}
+
+		.player {
+			background: #f8f9fa;
+			padding: 15px;
+			border-radius: 8px;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+			width: 100%;
+			max-width: 600px;
+		}
+
+		audio,
+		video {
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		.code-example {
+			background: #2d2d2d;
+			color: #f8f8f2;
+			padding: 15px;
+			border-radius: 5px;
+			overflow-x: auto;
+			margin: 15px 0;
+			font-family: 'Consolas', monospace;
+		}
+
+		.attributes {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+			gap: 15px;
+			margin: 20px 0;
+		}
+
+		.attribute {
+			background: #eef4ff;
+			padding: 15px;
+			border-radius: 8px;
+			border-left: 4px solid #6e8efb;
+		}
+
+		.attr-name {
+			font-weight: bold;
+			color: #3d5afe;
+		}
+
+		footer {
+			text-align: center;
+			margin-top: 40px;
+			padding: 20px;
+			color: #666;
+			font-size: 0.9em;
+		}
+
+		@media (max-width: 768px) {
+			.attributes {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1>HTML5音视频标签详解</h1>
+		<p>探索&lt;audio&gt;和&lt;video&gt;标签的强大功能</p>
+	</header>
+
+	<section id="audio-section">
+		<h2>音频标签 &lt;audio&gt;</h2>
+		<p>HTML5 &lt;audio&gt; 标签用于在网页中嵌入音频内容。</p>
+
+		<div class="media-container">
+			<div class="player">
+				<h3>音频播放示例</h3>
+				<audio controls>
+					<source src="https://www.w3schools.com/html/horse.ogg" type="audio/ogg">
+					<source src="https://www.w3schools.com/html/horse.mp3" type="audio/mpeg">
+					您的浏览器不支持音频标签。
+				</audio>
+			</div>
+		</div>
+
+		<h3>代码示例</h3>
+		<div class="code-example">
+			<pre><code>&lt;audio controls&gt;
+    &lt;source src="audio.ogg" type="audio/ogg"&gt;
+    &lt;source src="audio.mp3" type="audio/mpeg"&gt;
+    您的浏览器不支持音频标签。
+&lt;/audio&gt;</code></pre>
+		</div>
+
+		<h3>常用属性</h3>
+		<div class="attributes">
+			<div class="attribute">
+				<p class="attr-name">controls</p>
+				<p>显示音频控制界面（播放/暂停/进度条/音量等）</p>
+			</div>
+			<div class="attribute">
+				<p class="attr-name">autoplay</p>
+				<p>音频就绪后自动播放（注意：许多浏览器已限制自动播放）</p>
+			</div>
+			<div class="attribute">
+				<p class="attr-name">loop</p>
+				<p>音频播放完成后重新开始播放</p>
+			</div>
+			<div class="attribute">
+				<p class="attr-name">muted</p>
+				<p>默认静音播放</p>
+			</div>
+			<div class="attribute">
+				<p class="attr-name">preload</p>
+				<p>指定音频的预加载方式：auto|metadata|none</p>
+			</div>
+		</div>
+	</section>
+
+	<section id="video-section">
+		<h2>视频标签 &lt;video&gt;</h2>
+		<p>HTML5 &lt;video&gt; 标签用于在网页中嵌入视频内容。</p>
+
+		<div class="media-container">
+			<div class="player">
+				<h3>视频播放示例</h3>
+				<video controls poster="https://www.w3schools.com/html/img_girl.jpg" width="100%">
+					<source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+					<source src="https://www.w3schools.com/html/mov_bbb.ogg" type="video/ogg">
+					您的浏览器不支持视频标签。
+				</video>
+			</div>
+		</div>
+
+		<h3>代码示例</h3>
+		<div class="code-example">
+			<pre><code>&lt;video controls width="720" poster="poster.jpg"&gt;
+    &lt;source src="video.mp4" type="video/mp4"&gt;
+    &lt;source src="video.webm" type="video/webm"&gt;
+    您的浏览器不支持视频标签。
+&lt;/video&gt;</code></pre>
+		</div>
+
+		<h3>常用属性</h3>
+		<div class="attributes">
+			<div class="attribute">
+				<p class="attr-name">controls</p>
+				<p>显示视频控制界面</p>
+			</div>
+			<div class="attribute">
+				<p class="attr-name">width 和 height</p>
+				<p>设置视频播放器的宽度和高度</p>
+			</div>
+			<div class="attribute">
+				<p class="attr-name">poster</p>
+				<p>指定视频下载时或用户点击播放前显示的图像</p>
+			</div>
+			<div class="attribute">
+				<p class="attr-name">autoplay</p>
+				<p>视频就绪后自动播放</p>
+			</div>
+			<div class="attribute">
+				<p class="attr-name">loop</p>
+				<p>循环播放视频</p>
+			</div>
+			<div class="attribute">
+				<p class="attr-name">muted</p>
+				<p>默认静音播放</p>
+			</div>
+			<div class="attribute">
+				<p class="attr-name">preload</p>
+				<p>指定视频的预加载方式</p>
+			</div>
+		</div>
+	</section>
+
+	<section id="compatibility">
+		<h2>浏览器兼容性提示</h2>
+		<p>不同浏览器支持的音视频格式可能有所不同：</p>
+		<ul>
+			<li>MP3音频和MP4视频具有最广泛的浏览器支持</li>
+			<li>为提供最佳兼容性，请提供多种格式的媒体文件</li>
+			<li>使用多个&lt;source&gt;标签让浏览器选择它支持的格式</li>
+		</ul>
+	</section>
+
+	<footer>
+		<p>© 2023 HTML5音视频标签教程 | 仅供学习参考</p>
+	</footer>
+</body>
+
+</html>

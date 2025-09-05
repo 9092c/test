@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B站评论区 Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .comment-section {
+      width: 600px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 80px;
+      margin-bottom: 10px;
+      padding: 10px;
+      font-size: 14px;
+      resize: none;
+    }
+
+    button {
+      background-color: #00a1d6;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0092b2;
+    }
+
+    .comment-item, .reply-item {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    .reply-item {
+      background-color: #f1f1f1;
+    }
+
+    .comment-user {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .comment-actions {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .comment-actions span {
+      margin-right: 15px;
+      cursor: pointer;
+    }
+
+    .comment-actions span:hover {
+      color: #00a1d6;
+    }
+
+    .reply-box {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .reply-box textarea {
+      height: 60px;
+    }
+
+    .reply-list {
+      margin-top: 10px;
+      margin-left: 20px;
+    }
+
+    .toggle-replies {
+      font-size: 12px;
+      color: #00a1d6;
+      cursor: pointer;
+      margin-top: 5px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="comment-section">
+    <h2>评论区</h2>
+    <textarea id="comment-input" placeholder="发表评论..."></textarea>
+    <button id="submit-comment">发布</button>
+    <div id="comment-list"></div>
+  </div>
+
+  <script>
+    document.getElementById('submit-comment').onclick = () => {
+      const input = document.getElementById('comment-input');
+      const text = input.value.trim();
+      if (text) {
+        const comment = createComment('新用户', text);
+        document.getElementById('comment-list').prepend(comment);
+        input.value = '';
+      }
+    };
+
+    function createComment(username, content) {
+      const item = document.createElement('div');
+      item.className = 'comment-item';
+
+      item.innerHTML = `
+        <div class="comment-user">${username}</div>
+        <div class="comment-content">${content}</div>
+        <div class="comment-actions">
+          <span class="reply-btn">回复</span>
+          <span class="toggle-replies">显示回复</span>
+        </div>
+        <div class="reply-box">
+          <textarea placeholder="请输入回复..."></textarea>
+          <button class="reply-submit">回复</button>
+        </div>
+        <div class="reply-list" style="display: none;"></div>
+      `;
+
+      const replyBtn = item.querySelector('.reply-btn');
+      const replyBox = item.querySelector('.reply-box');
+      const replyList = item.querySelector('.reply-list');
+      const toggleReplies = item.querySelector('.toggle-replies');
+
+      // 主评论的“回复”按钮逻辑
+      replyBtn.onclick = () => {
+        replyBox.style.display = 'block';
+        const textarea = replyBox.querySelector('textarea');
+        textarea.focus();
+        textarea.value = `@${username} `;
+      };
+
+      toggleReplies.onclick = () => {
+        if (replyList.style.display === 'none') {
+          replyList.style.display = 'block';
+          toggleReplies.textContent = '收起回复';
+        } else {
+          replyList.style.display = 'none';
+          toggleReplies.textContent = '显示回复';
+        }
+      };
+
+      const replySubmit = replyBox.querySelector('.reply-submit');
+      replySubmit.onclick = () => {
+        const replyText = replyBox.querySelector('textarea').value.trim();
+        if (replyText) {
+          const replyItem = createReply('新用户', replyText, item);
+          replyList.appendChild(replyItem);
+          replyBox.querySelector('textarea').value = '';
+          replyBox.style.display = 'none';
+          replyList.style.display = 'block';
+          toggleReplies.textContent = '收起回复';
+        }
+      };
+
+      return item;
+    }
+
+    function createReply(username, content, commentItem) {
+      const reply = document.createElement('div');
+      reply.className = 'reply-item';
+
+      reply.innerHTML = `
+        <div class="comment-user">${username}</div>
+        <div class="comment-content">${content}</div>
+        <div class="comment-actions">
+          <span class="reply-to-reply">回复</span>
+        </div>
+      `;
+
+      const replyToReplyBtn = reply.querySelector('.reply-to-reply');
+      replyToReplyBtn.onclick = () => {
+        const replyBox = commentItem.querySelector('.reply-box');
+        replyBox.style.display = 'block';
+        const textarea = replyBox.querySelector('textarea');
+        const targetUser = reply.querySelector('.comment-user').textContent;
+        textarea.value = `@${targetUser} `;
+        textarea.focus();
+      };
+
+      return reply;
+    }
+  </script>
+</body>
+</html>

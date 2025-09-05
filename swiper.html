@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            scroll-behavior: smooth;
+            /* 平滑滚动 */
+        }
+
+        .container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+        }
+
+        .section {
+            height: 100vh;
+            scroll-snap-align: start;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <div class="container">
+        <div class="section" style="background: lightcoral;">第一页</div>
+        <div class="section" style="background: lightseagreen;">第二页</div>
+        <div class="section" style="background: lightskyblue;">第三页</div>
+    </div>
+
+</body>
+
+</html>

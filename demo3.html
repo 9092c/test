@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨迹 - 分享你的思想</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;  /* 主色调 - 深蓝色 */
+            --secondary-color: #6b8cae; /* 次要色 - 浅蓝色 */
+            --accent-color: #ff7e5f;   /* 强调色 - 珊瑚色 */
+            --light-color: #f8f9fa;     /* 浅色背景 */
+            --dark-color: #343a40;      /* 深色文字 */
+            --gray-color: #6c757d;     /* 灰色文字 */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .logo span {
+            color: var(--accent-color);
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark-color);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+        
+        .cta-button {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .cta-button:hover {
+            background-color: #ff6a45;
+            color: white;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 5rem 5%;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        
+        .search-bar {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            font-size: 1rem;
+        }
+        
+        .search-bar button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 5%;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .section-title h2 {
+            font-size: 2rem;
+            display: inline-block;
+            background-color: var(--light-color);
+            padding: 0 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .section-title::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #ddd;
+            z-index: 0;
+        }
+        
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .blog-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-image {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .blog-card:hover .card-image img {
+            transform: scale(1.05);
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+        
+        .card-author {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+        
+        .card-excerpt {
+            color: var(--gray-color);
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .read-more {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .card-stats {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .card-stats span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+        
+        .categories {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .category-tag {
+            background-color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            text-decoration: none;
+            color: var(--dark-color);
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+        
+        .category-tag:hover, .category-tag.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .popular-posts {
+            margin-top: 5rem;
+        }
+        
+        .popular-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .popular-card {
+            display: flex;
+            gap: 1rem;
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .popular-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .popular-content h4 {
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .popular-content p {
+            font-size: 0.8rem;
+            color: var(--gray-color);
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 3rem 5%;
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            text-align: left;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-column a {
+            color: #adb5bd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column a:hover {
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        
+        .social-links a:hover {
+            background-color: var(--accent-color);
+        }
+        
+        .copyright {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #adb5bd;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                margin-top: 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .search-bar input {
+                border-radius: 4px;
+                margin-bottom: 0.5rem;
+            }
+            
+            .search-bar button {
+                border-radius: 4px;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="#" class="logo">墨<span>迹</span></a>
+            <ul class="nav-links">
+                <li><a href="#">首页</a></li>
+                <li><a href="#">发现</a></li>
+                <li><a href="#">分类</a></li>
+                <li><a href="#">关于</a></li>
+                <li><a href="#" class="cta-button">写文章</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <section class="hero">
+        <h1>分享你的思想，启迪他人</h1>
+        <p>在墨迹平台，你可以自由表达观点，发现志同道合的朋友，共同探索知识的海洋。</p>
+        <div class="search-bar">
+            <input type="text" placeholder="搜索你感兴趣的内容...">
+            <button>搜索</button>
+        </div>
+    </section>
+    
+    <main class="container">
+        <div class="categories">
+            <a href="#" class="category-tag active">全部</a>
+            <a href="#" class="category-tag">科技</a>
+            <a href="#" class="category-tag">设计</a>
+            <a href="#" class="category-tag">生活</a>
+            <a href="#" class="category-tag">旅行</a>
+            <a href="#" class="category-tag">美食</a>
+            <a href="#" class="category-tag">摄影</a>
+            <a href="#" class="category-tag">文学</a>
+        </div>
+        
+        <section class="featured-posts">
+            <div class="section-title">
+                <h2>精选文章</h2>
+            </div>
+            
+            <div class="blog-grid">
+                <article class="blog-card">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="博客封面">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-meta">
+                            <span class="card-author">张明</span>
+                            <span>2023年5月15日</span>
+                        </div>
+                        <h3 class="card-title">人工智能如何改变我们的工作方式</h3>
+                        <p class="card-excerpt">随着AI技术的快速发展，我们的工作方式正在经历前所未有的变革。本文将探讨AI在不同行业的应用及其对未来就业市场的影响...</p>
+                        <div class="card-footer">
+                            <a href="#" class="read-more">阅读更多</a>
+                            <div class="card-stats">
+                                <span>❤️ 245</span>
+                                <span>💬 32</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                
+                <article class="blog-card">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="博客封面">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-meta">
+                            <span class="card-author">李华</span>
+                            <span>2023年5月12日</span>
+                        </div>
+                        <h3 class="card-title">极简主义生活：从物品到心灵的整理</h3>
+                        <p class="card-excerpt">在这个物质丰富的时代，极简主义为我们提供了一种全新的生活方式。本文分享了我实践极简主义一年来的心得与体会...</p>
+                        <div class="card-footer">
+                            <a href="#" class="read-more">阅读更多</a>
+                            <div class="card-stats">
+                                <span>❤️ 189</span>
+                                <span>💬 24</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                
+                <article class="blog-card">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="博客封面">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-meta">
+                            <span class="card-author">王芳</span>
+                            <span>2023年5月10日</span>
+                        </div>
+                        <h3 class="card-title">北欧自驾游：追逐极光的14天</h3>
+                        <p class="card-excerpt">从挪威的峡湾到芬兰的森林，从瑞典的北极圈到冰岛的火山，这是一场关于自然与冒险的旅程。分享我的北欧自驾攻略和难忘瞬间...</p>
+                        <div class="card-footer">
+                            <a href="#" class="read-more">阅读更多</a>
+                            <div class="card-stats">
+                                <span>❤️ 312</span>
+                                <span>💬 45</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                
+                <article class="blog-card">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="博客封面">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-meta">
+                            <span class="card-author">陈晨</span>
+                            <span>2023年5月8日</span>
+                        </div>
+                        <h3 class="card-title">从零开始学习Python数据分析</h3>
+                        <p class="card-excerpt">Python已成为数据分析领域的首选语言。本文为零基础学习者设计，介绍如何使用Pandas、NumPy和Matplotlib进行数据分析...</p>
+                        <div class="card-footer">
+                            <a href="#" class="read-more">阅读更多</a>
+                            <div class="card-stats">
+                                <span>❤️ 276</span>
+                                <span>💬 38</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                
+                <article class="blog-card">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1547592180-85f173990554?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="博客封面">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-meta">
+                            <span class="card-author">赵阳</span>
+                            <span>2023年5月5日</span>
+                        </div>
+                        <h3 class="card-title">可持续设计：建筑与自然的和谐共生</h3>
+                        <p class="card-excerpt">在全球气候变化背景下，可持续设计理念日益重要。本文介绍了几种创新的建筑设计方法，如何实现建筑与环境的和谐共存...</p>
+                        <div class="card-footer">
+                            <a href="#" class="read-more">阅读更多</a>
+                            <div class="card-stats">
+                                <span>❤️ 154</span>
+                                <span>💬 19</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                
+                <article class="blog-card">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="博客封面">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-meta">
+                            <span class="card-author">周敏</span>
+                            <span>2023年5月3日</span>
+                        </div>
+                        <h3 class="card-title">家庭健康饮食：一周食谱计划</h3>
+                        <p class="card-excerpt">健康饮食不需要复杂或昂贵。分享我为家人准备的一周健康食谱，营养均衡、简单易做，适合忙碌的现代家庭...</p>
+                        <div class="card-footer">
+                            <a href="#" class="read-more">阅读更多</a>
+                            <div class="card-stats">
+                                <span>❤️ 203</span>
+                                <span>💬 28</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+        
+        <section class="popular-posts">
+            <div class="section-title">
+                <h2>热门文章</h2>
+            </div>
+            
+            <div class="popular-grid">
+                <article class="popular-card">
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="热门文章">
+                    <div class="popular-content">
+                        <h4>5G技术将如何改变未来通信</h4>
+                        <p>李明 · 3天前</p>
+                    </div>
+                </article>
+                
+                <article class="popular-card">
+                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="热门文章">
+                    <div class="popular-content">
+                        <h4>冥想入门：缓解压力的7种方法</h4>
+                        <p>王静 · 5天前</p>
+                    </div>
+                </article>
+                
+                <article class="popular-card">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="热门文章">
+                    <div class="popular-content">
+                        <h4>数据可视化：用图表讲好故事</h4>
+                        <p>张伟 · 1周前</p>
+                    </div>
+                </article>
+                
+                <article class="popular-card">
+                    <img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="热门文章">
+                    <div class="popular-content">
+                        <h4>地中海饮食的健康益处</h4>
+                        <p>刘芳 · 2周前</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>关于墨迹</h3>
+                <p>墨迹是一个开放的博客平台，致力于为创作者提供优质的写作和阅读体验。</p>
+                <div class="social-links">
+                    <a href="#"><i>微</i></a>
+                    <a href="#"><i>微</i></a>
+                    <a href="#"><i>知</i></a>
+                    <a href="#"><i>B</i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>快速链接</h3>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#">发现</a></li>
+                    <li><a href="#">分类</a></li>
+                    <li><a href="#">热门</a></li>
+                    <li><a href="#">关于我们</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>帮助中心</h3>
+                <ul>
+                    <li><a href="#">常见问题</a></li>
+                    <li><a href="#">写作指南</a></li>
+                    <li><a href="#">社区准则</a></li>
+                    <li><a href="#">隐私政策</a></li>
+                    <li><a href="#">联系我们</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>订阅我们</h3>
+                <p>订阅我们的新闻通讯，获取最新文章和更新。</p>
+                <form>
+                    <input type="email" placeholder="您的邮箱地址" style="width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; border-radius: 4px; border: none;">
+                    <button type="submit" class="cta-button" style="width: 100%;">订阅</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>© 2023 墨迹博客平台. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

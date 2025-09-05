@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>旋转圆环加载动画</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0f0f0;
+    }
+
+    .spinner {
+      border: 8px solid #d2c1c1;
+      border-top: 8px solid #3498db;
+      /* border-right: 8px solid #3498db; */
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin  3s linear infinite,borderColorChange 9s linear infinite;
+      /* animation: borderColorChange 2s linear infinite; */
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    @keyframes borderColorChange {
+      0% {
+        border-top-color: #3498db; /* 初始颜色 */
+      }
+      25% {
+        border-top-color: #9b59b6; /* 25% 时的颜色 */
+      }
+      50% {
+        border-top-color: #f77009; /* 50% 时的颜色 */
+      }
+      75% {
+        border-top-color: #2ecc71; /* 75% 时的颜色 */
+      }
+      100% {
+        border-top-color: #3498db; /* 回到初始颜色 */
+      }
+    }
+    .click-effect {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(60, 187, 113, 1);
+  pointer-events: none;
+  transform: scale(0);
+  animation: clickAnimation 0.6s ease-out;
+  z-index: 9999;
+  display: none;
+}
+
+@keyframes clickAnimation {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+  </style>
+</head>
+
+<body>
+  <div class="spinner"></div>
+  <div class="click-effect"></div>
+  <script>
+    document.addEventListener('click', function(e) {
+  const clickEffect = document.querySelector('.click-effect');
+  
+  // 设置点击位置
+  clickEffect.style.left = `${e.clientX - 10}px`;
+  clickEffect.style.top = `${e.clientY - 10}px`;
+  
+  // 显示并触发动画
+  clickEffect.style.display = 'block';
+  
+  // 动画结束后隐藏
+  setTimeout(() => {
+    clickEffect.style.display = 'none';
+  }, 500);
+});
+  </script>
+</body>
+
+</html>

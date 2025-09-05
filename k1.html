@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeScript 类型声明示例</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin: 30px 0;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0e7ff;
+            margin-bottom: 30px;
+        }
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .card h2 {
+            color: #4facfe;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .code-container {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Fira Code', monospace;
+            color: #d4d4d4;
+        }
+        .keyword {
+            color: #569cd6;
+        }
+        .identifier {
+            color: #9cdcfe;
+        }
+        .type {
+            color: #4ec9b0;
+        }
+        .value {
+            color: #ce9178;
+        }
+        .comment {
+            color: #6a9955;
+        }
+        .explanation {
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+        .advantages {
+            margin-top: 20px;
+        }
+        .advantages li {
+            margin-bottom: 10px;
+            list-style-position: inside;
+        }
+        .try-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        input {
+            padding: 10px;
+            border: 1px solid #4facfe;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            width: 100%;
+            margin: 10px 0;
+        }
+        button {
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            min-height: 50px;
+        }
+        .success {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid #2ecc71;
+        }
+        .error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+        }
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TypeScript 类型声明</h1>
+            <p class="subtitle">理解 <code>let str: String = '123'</code> 的语法与优势</p>
+        </header>
+
+        <div class="content">
+            <div class="card">
+                <h2>TypeScript 示例</h2>
+                <div class="code-container">
+                    <code>
+                        <span class="keyword">let</span> <span class="identifier">str</span><span class="type">: String</span> = <span class="value">'123'</span>;<br>
+                        <span class="comment">// 声明一个字符串变量并指定类型</span><br><br>
+                        
+                        <span class="comment">// 尝试赋值为其他类型会导致编译错误</span><br>
+                        <span class="comment">// str = 123; // Error: Type 'number' is not assignable to type 'String'</span>
+                    </code>
+                </div>
+                <div class="explanation">
+                    <p>这段代码使用了 TypeScript 的<strong>类型注解</strong>语法：</p>
+                    <ul>
+                        <li><code class="keyword">let</code> - 声明一个变量</li>
+                        <li><code class="identifier">str</code> - 变量名</li>
+                        <li><code class="type">: String</code> - 类型注解，指定变量为字符串类型</li>
+                        <li><code class="value">'123'</code> - 赋值为字符串值</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>JavaScript 对比</h2>
+                <div class="code-container">
+                    <code>
+                        <span class="keyword">let</span> <span class="identifier">str</span> = <span class="value">'123'</span>;<br>
+                        <span class="comment">// JavaScript 使用动态类型，无法指定变量类型</span><br><br>
+                        
+                        <span class="comment">// 可以随意改变变量类型</span><br>
+                        <span class="identifier">str</span> = <span class="value">123</span>; <span class="comment">// 不会报错</span><br>
+                        <span class="identifier">str</span> = <span class="value">true</span>; <span class="comment">// 不会报错</span>
+                    </code>
+                </div>
+                <div class="explanation">
+                    <p>JavaScript 使用动态类型，这意味着：</p>
+                    <ul>
+                        <li>变量类型在运行时确定</li>
+                        <li>同一个变量可以被重新赋值为任何类型</li>
+                        <li>类型错误只能在运行时被发现</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>类型注解的优势</h2>
+                <div class="advantages">
+                    <ul>
+                        <li><strong>早期错误检测</strong> - 在编译阶段发现类型错误，而不是运行时</li>
+                        <li><strong>代码智能提示</strong> - IDE 能够提供更准确的自动完成和文档提示</li>
+                        <li><strong>代码可读性</strong> - 明确变量类型，使代码更易于理解和维护</li>
+                        <li><strong>重构支持</strong> - 类型信息使大型代码库的重构更加安全</li>
+                    </ul>
+                </div>
+                <div class="try-box">
+                    <h3>试试类型检查</h3>
+                    <p>输入一个值，查看 TypeScript 如何检查类型：</p>
+                    <input type="text" id="typeInput" placeholder="输入一个值">
+                    <button onclick="checkType()">检查类型</button>
+                    <div id="typeResult" class="result"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>更多类型声明示例</h2>
+                <div class="code-container">
+                    <code>
+                        <span class="comment">// 基本类型</span><br>
+                        <span class="keyword">let</span> <span class="identifier">num</span><span class="type">: number</span> = <span class="value">42</span>;<br>
+                        <span class="keyword">let</span> <span class="identifier">isDone</span><span class="type">: boolean</span> = <span class="value">false</span>;<br>
+                        <span class="keyword">let</span> <span class="identifier">list</span><span class="type">: number[]</span> = [<span class="value">1, 2, 3</span>];<br><br>
+                        
+                        <span class="comment">// 联合类型</span><br>
+                        <span class="keyword">let</span> <span class="identifier">value</span><span class="type">: string | number</span> = <span class="value">'hello'</span>;<br>
+                        <span class="identifier">value</span> = <span class="value">123</span>; <span class="comment">// 允许，因为是联合类型</span><br><br>
+                        
+                        <span class="comment">// 接口定义复杂类型</span><br>
+                        <span class="keyword">interface</span> <span class="type">Person</span> {<br>
+                        &nbsp;&nbsp;<span class="identifier">name</span><span class="type">: string</span>;<br>
+                        &nbsp;&nbsp;<span class="identifier">age</span><span class="type">: number</span>;<br>
+                        }<br>
+                        <span class="keyword">let</span> <span class="identifier">person</span><span class="type">: Person</span> = { <span class="identifier">name</span>: <span class="value">'Alice'</span>, <span class="identifier">age</span>: <span class="value">30</span> };
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>TypeScript 是 JavaScript 的一个超集，提供了可选的静态类型检查和最新的 ECMAScript 特性</p>
+        </footer>
+    </div>
+
+    <script>
+        function checkType() {
+            const input = document.getElementById('typeInput').value;
+            const resultDiv = document.getElementById('typeResult');
+            
+            // 清空之前的结果
+            resultDiv.className = 'result';
+            
+            // 尝试判断输入类型
+            try {
+                // 尝试解析为JSON
+                const parsed = JSON.parse(input);
+                resultDiv.innerHTML = `<strong>类型解析:</strong> ${typeof parsed} (${parsed})`;
+                resultDiv.classList.add('success');
+            } catch (e) {
+                // 如果无法解析为JSON，直接判断类型
+                if (input === 'true' || input === 'false') {
+                    resultDiv.innerHTML = `<strong>类型解析:</strong> boolean (${input})`;
+                    resultDiv.classList.add('success');
+                } else if (!isNaN(input) && input.trim() !== '') {
+                    resultDiv.innerHTML = `<strong>类型解析:</strong> number (${input})`;
+                    resultDiv.classList.add('success');
+                } else {
+                    resultDiv.innerHTML = `<strong>类型解析:</strong> string (${input})`;
+                    resultDiv.classList.add('success');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

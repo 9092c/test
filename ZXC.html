@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    .fade-in {
+      opacity: 0; /* 默认透明 */
+      transform: translateY(20px); /* 初始位置下移 */
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    /* 当元素进入视口时触发动画 */
+    .fade-in.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div style="height: 100vh;">滚动下方👇</div>
+  <div class="fade-in">我会慢慢浮现！</div>
+
+  <script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('active'); // 进入视口时添加类
+    } else {
+      entry.target.classList.remove('active'); // 离开视口时移除类
+    }
+    
+  });
+}, { threshold: 0.1 });
+
+// 监听所有 .fade-in 元素
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

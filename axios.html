@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>前端知识点：fetch与axios</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    code {
+      /* background-color: #f9f9f9; */
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    pre {
+      background-color: #fcffed;
+      /* color: white; */
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    ul {
+      list-style-type: disc;
+      margin-left: 20px;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    .code-snippet {
+      /* background-color: #e9ecef; */
+      /* border: 1px solid #ccc; */
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .important {
+      color: #dc3545;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>前端必会知识点：fetch 和 axios</h1>
+  
+  <div class="section">
+    <h2>1. fetch 基本用法</h2>
+    <p><code>fetch</code> 是浏览器原生提供的用于发送 HTTP 请求的 API。</p>
+    
+    <h3>GET 请求示例：</h3>
+    <pre><code>
+fetch('https://api.example.com/data')
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+    </code></pre>
+
+    <h3>POST 请求示例：</h3>
+    <pre><code>
+fetch('https://api.example.com/data', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ name: 'John', age: 30 })
+})
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+    </code></pre>
+
+    <h3>错误处理：</h3>
+    <p><code>fetch</code> 不会自动处理 HTTP 错误，需要手动检查响应状态。</p>
+    <pre><code>
+fetch('https://api.example.com/data')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => console.log(data))
+  .catch(error => console.error('Fetch error:', error));
+    </code></pre>
+  </div>
+
+  <div class="section">
+    <h2>2. axios 基本用法</h2>
+    <p><code>axios</code> 是一个第三方库，功能更强大，支持请求/响应拦截、请求超时等。</p>
+
+    <h3>GET 请求示例：</h3>
+    <pre><code>
+axios.get('https://api.example.com/data')
+  .then(response => console.log(response.data))
+  .catch(error => console.error('Error:', error));
+    </code></pre>
+
+    <h3>POST 请求示例：</h3>
+    <pre><code>
+axios.post('https://api.example.com/data', {
+  name: 'John',
+  age: 30
+})
+  .then(response => console.log(response.data))
+  .catch(error => console.error('Error:', error));
+    </code></pre>
+
+    <h3>错误处理：</h3>
+    <pre><code>
+axios.get('https://api.example.com/data')
+  .then(response => console.log(response.data))
+  .catch(error => {
+    if (error.response) {
+      console.error('Error status:', error.response.status);
+    } else if (error.request) {
+      console.error('No response received');
+    } else {
+      console.error('Axios error:', error.message);
+    }
+  });
+    </code></pre>
+  </div>
+
+  <div class="section">
+    <h2>3. fetch vs axios</h2>
+    <ul>
+      <li><code>axios</code> 会自动处理 HTTP 错误，而 <code>fetch</code> 需要手动处理。</li>
+      <li><code>axios</code> 默认会将响应解析为 JSON，而 <code>fetch</code> 需要手动调用 <code>response.json()</code>。</li>
+      <li><code>axios</code> 支持请求拦截器、响应拦截器等，而 <code>fetch</code> 没有内建的拦截器。</li>
+      <li><code>axios</code> 支持请求超时、取消请求等功能，<code>fetch</code> 需要手动实现。</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>4. 前端岗位常用和必会的知识</h2>
+    <h3>HTML & CSS</h3>
+    <ul>
+      <li>了解 HTML5 语义化标签，如 <code>&lt;article&gt;</code>、<code>&lt;section&gt;</code> 等。</li>
+      <li>掌握 CSS3，能够灵活使用 Flexbox 和 Grid 布局。</li>
+      <li>熟悉响应式设计和常用的 CSS 预处理器（如 SCSS、LESS）。</li>
+      <li>掌握常见的 CSS 动画与过渡效果。</li>
+    </ul>
+
+    <h3>JavaScript 基础</h3>
+    <ul>
+      <li>熟悉原生 JavaScript（ES6+），如箭头函数、解构赋值、模板字符串等。</li>
+      <li>了解异步编程，能够熟练使用 <code>Promise</code>、<code>async/await</code>。</li>
+      <li>理解闭包、作用域链等概念，能够处理常见的 JS 问题。</li>
+    </ul>
+
+    <h3>前端框架与库</h3>
+    <ul>
+      <li>掌握至少一种现代 JavaScript 框架，如 React、Vue、Angular。</li>
+      <li>了解如何使用 <code>Redux</code> 或 <code>Vuex</code> 等状态管理工具。</li>
+      <li>理解组件化开发，并能使用组件库，如 Ant Design、Element UI。</li>
+    </ul>
+
+    <h3>工具与技术</h3>
+    <ul>
+      <li>熟悉 Git 版本控制，能够进行常见的 Git 操作。</li>
+      <li>了解前端构建工具，如 Webpack、Vite。</li>
+      <li>掌握调试工具，如 Chrome DevTools，能够进行性能分析。</li>
+    </ul>
+
+    <h3>其他必备技能</h3>
+    <ul>
+      <li>具备一定的 Node.js 后端知识，能够处理基础的后端请求。</li>
+      <li>熟悉 RESTful API 设计原则，能够进行前后端数据交互。</li>
+      <li>了解基本的 SEO 知识，能够优化页面加载速度和搜索引擎排名。</li>
+    </ul>
+  </div>
+
+  <footer style="margin-top: 40px; text-align: center; font-size: 14px;">
+    <p>&copy; 2025 前端技术文档 | <a rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API" target="_blank">MDN Fetch API</a> | <a rel="noopener" href="https://axios-http.com/docs/intro" target="_blank">Axios Documentation</a></p>
+  </footer>
+</body>
+</html>

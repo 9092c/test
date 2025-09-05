@@ -1,0 +1,131 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px 0;
+}
+
+.header .logo {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.header nav ul {
+    display: flex;
+    list-style: none;
+    justify-content: flex-end;
+}
+
+.header nav ul li {
+    margin-left: 20px;
+}
+
+.header nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.1em;
+}
+
+.hero {
+    background-image: url('https://via.placeholder.com/1200x500');
+    background-size: cover;
+    color: white;
+    text-align: center;
+    padding: 80px 0;
+}
+
+.hero h2 {
+    font-size: 3em;
+}
+
+.hero p {
+    font-size: 1.2em;
+    margin-top: 20px;
+}
+
+.cta-button {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 30px;
+    border-radius: 5px;
+}
+
+.about, .blog, .contact {
+    padding: 50px 0;
+}
+
+.about p, .blog p {
+    font-size: 1.1em;
+    margin-top: 15px;
+}
+
+.blog-posts {
+    display: flex;
+    gap: 20px;
+}
+
+.post {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 48%;
+}
+
+.post img {
+    width: 100%;
+    height: auto;
+}
+
+.post h3 {
+    padding: 20px;
+    font-size: 1.5em;
+}
+
+.post p {
+    padding: 0 20px;
+    font-size: 1em;
+    color: #666;
+}
+
+.read-more {
+    display: block;
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    margin: 20px;
+    border-radius: 5px;
+}
+
+footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
+}
+
+footer p {
+    font-size: 0.9em;
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-size: 16px;
+            box-sizing: border-box;
+
+        }
+
+        .box {
+            height: 200%;
+            width: 100%;
+            background-color: #0077ff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box"></div>
+
+    <script>
+        window.addEventListener('scroll', function () {
+            console.log('当前滚动位置:', window.scrollY);
+        });
+
+        // 或者对于特定元素
+        // document.getElementById('scrollableElement').addEventListener('scroll', function () {
+        //     console.log('元素滚动位置:', this.scrollTop);
+        // });
+    </script>
+</body>
+
+
+</html>

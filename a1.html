@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>复习思维导图 - 单文件HTML</title>
+  <style>
+    :root{
+      --bg: #0b1020;
+      --card: #121a33;
+      --muted: #94a3b8;
+      --text: #e2e8f0;
+      --accent: #60a5fa;
+      --line: #243056;
+      --highlight: #fde68a;
+    }
+    html, body { height: 100%; }
+    body{
+      margin:0; background:var(--bg); color:var(--text); font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Noto Sans CJK, sans-serif;
+      display:flex; flex-direction:column;
+    }
+    header{
+      padding:12px; background:linear-gradient(180deg, rgba(96,165,250,.12), transparent);
+      border-bottom:1px solid rgba(148,163,184,.2);
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+    }
+    header h1{ font-size:16px; margin:0 8px 0 0; color:#cbd5e1; font-weight:600; }
+    .btn{ background:var(--card); color:var(--text); border:1px solid rgba(148,163,184,.25); padding:8px 10px; border-radius:12px; cursor:pointer; transition: .2s; }
+    .btn:hover{ border-color: var(--accent); box-shadow: 0 0 0 2px rgba(96,165,250,.15) inset; }
+    .btn.small{ padding:3px 6px; border-radius:8px; font-size:12px; }
+    .danger{ border-color:#fca5a5; }
+    .row{ display:flex; gap:8px; align-items:center; }
+    .spacer{ flex:1; }
+    input[type="file"]{ display:none; }
+    .input{ background:var(--card); color:var(--text); border:1px solid rgba(148,163,184,.25); padding:8px 10px; border-radius:12px; outline:none; }
+    .hint{ color:var(--muted); font-size:12px; }
+
+    main{ flex:1; display:flex; overflow:hidden; }
+    #canvas{
+      flex:1; margin:16px; padding:16px; border-radius:16px; background:var(--card);
+      overflow:auto; position:relative;
+    }
+
+    /* Tree layout */
+    .tree{ white-space: nowrap; padding:12px 24px; }
+    .tree ul{ position: relative; padding-left: 22px; margin: 6px 0 6px 0; list-style:none; }
+    .tree ul::before{ content:""; position:absolute; top:0; left:10px; bottom:0; width:2px; background: var(--line); }
+    .tree > ul::before{ left:14px; }
+    .tree li{ position:relative; padding-left: 14px; margin: 6px 0; }
+    .tree li::before{ content:""; position:absolute; top:11px; left:0; width:12px; height:2px; background: var(--line); }
+
+    .node{ display:inline-flex; align-items:center; gap:6px; background:#0f172a; border:1px solid #1e293b; border-radius:14px; padding:6px 10px; box-shadow:0 4px 10px rgba(0,0,0,.15); }
+    .node:focus-within{ outline:2px solid rgba(96,165,250,.35); }
+    .title{ min-width: 60px; outline:none; padding:2px 4px; border-radius:8px; }
+    .title[contenteditable="true"]:empty:before{ content:"（双击编辑）"; color:var(--muted); }
+    .node .controls{ display:flex; gap:4px; opacity:.85; }
+    .node .controls .btn.small{ background:#0b1226; }
+    .collapsed > ul{ display:none; }
+
+    .match{ background: var(--highlight); color:#0b1020; border-color:#fbbf24; }
+
+    /* Mini map */
+    #minimap{
+      position: sticky; top:12px; align-self:flex-start; width:220px; height:160px; margin:16px 16px 16px 0; border-radius:12px; background:linear-gradient(180deg, rgba(2,6,23,.6), rgba(2,6,23,.3)); border:1px dashed rgba(148,163,184,.35); display:none;
+    }
+
+    /* Print */
+    @media print{
+      header, #minimap, .node .controls{ display:none !important; }
+      body{ background:#fff; color:#000; }
+      #canvas{ box-shadow:none; border:none; margin:0; }
+      .tree ul::before, .tree li::before{ background:#999; }
+      .node{ background:#fff; border-color:#bbb; box-shadow:none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>复习思维导图</h1>
+    <button class="btn" id="addRoot">新增主题</button>
+    <button class="btn" id="expandAll">全部展开</button>
+    <button class="btn" id="collapseAll">全部折叠</button>
+    <button class="btn" id="exportBtn">导出JSON</button>
+    <label class="btn" for="importInput">导入JSON</label>
+    <input type="file" id="importInput" accept="application/json" />
+    <button class="btn danger" id="clearAll">清空</button>
+    <div class="spacer"></div>
+    <input class="input" id="search" placeholder="搜索节点（回车跳下一个）" />
+    <span class="hint">操作：双击编辑；子节点＋；回车换行创建同级。</span>
+  </header>
+  <main>
+    <aside id="minimap"></aside>
+    <section id="canvas">
+      <div class="tree" id="tree"></div>
+    </section>
+  </main>
+
+  <script>
+    const treeEl = document.getElementById('tree');
+    const STORAGE_KEY = 'mindmapData.v1';
+
+    // --- Helpers ---
+    function el(tag, attrs={}, ...children){
+      const e = document.createElement(tag);
+      for(const [k,v] of Object.entries(attrs)){
+        if(k === 'class') e.className = v; else if(k.startsWith('on') && typeof v==='function') e.addEventListener(k.slice(2), v); else if(k==='dataset') Object.assign(e.dataset, v); else e.setAttribute(k,v);
+      }
+      for(const c of children){ if(c==null) continue; e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); }
+      return e;
+    }
+    function createNode(text='新节点'){
+      const title = el('span', {class:'title', contenteditable:'true'}); title.textContent = text;
+      title.addEventListener('dblclick', () => title.focus());
+      title.addEventListener('keydown', (e)=>{
+        if(e.key==='Enter'){
+          e.preventDefault();
+          const li = e.currentTarget.closest('li');
+          addSibling(li);
+        }
+      });
+      title.addEventListener('input', scheduleSave);
+
+      const btnAddChild = el('button', {class:'btn small', title:'添加子节点', onclick: (e)=>{
+        e.stopPropagation();
+        const li = e.currentTarget.closest('li');
+        addChild(li);
+      }}, '+子');
+      const btnAddSibling = el('button', {class:'btn small', title:'添加同级', onclick: (e)=>{
+        e.stopPropagation();
+        const li = e.currentTarget.closest('li');
+        addSibling(li);
+      }}, '+同');
+      const btnToggle = el('button', {class:'btn small', title:'折叠/展开', onclick: (e)=>{
+        e.stopPropagation();
+        const li = e.currentTarget.closest('li');
+        li.classList.toggle('collapsed');
+        scheduleSave();
+      }}, '折叠');
+      const btnDel = el('button', {class:'btn small danger', title:'删除', onclick: (e)=>{
+        e.stopPropagation();
+        const li = e.currentTarget.closest('li');
+        if(confirm('删除该节点及其子节点？')){
+          const parentUl = li.parentElement; li.remove();
+          if(parentUl && parentUl.children.length===0) parentUl.remove();
+          scheduleSave();
+        }
+      }}, '删');
+
+      const controls = el('span', {class:'controls'}, btnAddChild, btnAddSibling, btnToggle, btnDel);
+      const node = el('div', {class:'node'}, title, controls);
+      const li = el('li', {}, node);
+      return li;
+    }
+
+    function ensureChildList(li){
+      let ul = li.querySelector(':scope > ul');
+      if(!ul){ ul = el('ul'); li.appendChild(ul); }
+      return ul;
+    }
+    function addChild(li){
+      const ul = ensureChildList(li);
+      const child = createNode('子节点');
+      ul.appendChild(child);
+      child.querySelector('.title').focus();
+      scheduleSave();
+    }
+    function addSibling(li){
+      const newLi = createNode('同级节点');
+      li.after(newLi);
+      newLi.querySelector('.title').focus();
+      scheduleSave();
+    }
+
+    // --- Serialize / Deserialize ---
+    function liToData(li){
+      const title = li.querySelector(':scope > .node .title').textContent.trim();
+      const collapsed = li.classList.contains('collapsed');
+      const children = [];
+      const ul = li.querySelector(':scope > ul');
+      if(ul){ ul.querySelectorAll(':scope > li').forEach(c=> children.push(liToData(c))); }
+      return { text:title || '新节点', collapsed, children };
+    }
+    function ulToData(ul){
+      const arr = []; ul.querySelectorAll(':scope > li').forEach(li=> arr.push(liToData(li))); return arr;
+    }
+    function dataToLi(node){
+      const li = createNode(node.text||'新节点');
+      if(node.collapsed) li.classList.add('collapsed');
+      if(node.children && node.children.length){
+        const ul = ensureChildList(li);
+        node.children.forEach(ch=> ul.appendChild(dataToLi(ch)));
+      }
+      return li;
+    }
+    function dataToUl(data){
+      const ul = el('ul');
+      (data||[]).forEach(n=> ul.appendChild(dataToLi(n)));
+      return ul;
+    }
+
+    // --- Persistence ---
+    let saveTimer=null;
+    function scheduleSave(){
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveNow, 250);
+    }
+    function saveNow(){
+      const rootUl = treeEl.querySelector(':scope > ul');
+      const data = rootUl ? ulToData(rootUl) : [];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+    function loadSaved(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        try{
+          const data = JSON.parse(raw);
+          render(data);
+          return true;
+        }catch(err){ console.warn('加载失败', err); }
+      }
+      return false;
+    }
+
+    // --- Rendering ---
+    function render(data){
+      treeEl.innerHTML = '';
+      const ul = dataToUl(data);
+      treeEl.appendChild(ul);
+    }
+
+    // --- Controls ---
+    document.getElementById('addRoot').addEventListener('click', ()=>{
+      let ul = treeEl.querySelector(':scope > ul');
+      if(!ul){ ul = el('ul'); treeEl.appendChild(ul); }
+      const li = createNode('新主题');
+      ul.appendChild(li);
+      li.querySelector('.title').focus();
+      scheduleSave();
+    });
+    document.getElementById('expandAll').addEventListener('click', ()=>{
+      treeEl.querySelectorAll('li.collapsed').forEach(li=> li.classList.remove('collapsed'));
+      scheduleSave();
+    });
+    document.getElementById('collapseAll').addEventListener('click', ()=>{
+      treeEl.querySelectorAll('li').forEach(li=> li.classList.add('collapsed'));
+      scheduleSave();
+    });
+    document.getElementById('exportBtn').addEventListener('click', ()=>{
+      const ul = treeEl.querySelector(':scope > ul');
+      const data = ul ? ulToData(ul) : [];
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+      a.download = `mindmap-${ts}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+    document.getElementById('importInput').addEventListener('change', (e)=>{
+      const file = e.target.files[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        try{
+          const data = JSON.parse(reader.result);
+          render(data); scheduleSave();
+        }catch(err){ alert('导入失败：JSON 格式不正确'); }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    });
+    document.getElementById('clearAll').addEventListener('click', ()=>{
+      if(confirm('确定要清空整个导图吗？此操作不可撤销。')){
+        localStorage.removeItem(STORAGE_KEY);
+        treeEl.innerHTML = '';
+      }
+    });
+
+    // 搜索
+    const searchEl = document.getElementById('search');
+    let lastMatchIndex = -1; let matches=[];
+    function collectMatches(q){
+      matches = Array.from(treeEl.querySelectorAll('.title')).filter(t=> t.textContent.toLowerCase().includes(q.toLowerCase()));
+    }
+    function clearHighlights(){
+      treeEl.querySelectorAll('.match').forEach(n=> n.classList.remove('match'));
+    }
+    function jumpToNext(){
+      if(!matches.length) return; lastMatchIndex = (lastMatchIndex + 1) % matches.length;
+      const target = matches[lastMatchIndex];
+      // Expand parents
+      let p = target.closest('li').parentElement; while(p && p.closest('li')){ p.closest('li').classList.remove('collapsed'); p = p.closest('li').parentElement; }
+      target.classList.add('match'); target.scrollIntoView({block:'center', behavior:'smooth'});
+      setTimeout(()=> target.classList.remove('match'), 1200);
+    }
+    searchEl.addEventListener('input', (e)=>{
+      clearHighlights(); lastMatchIndex=-1;
+    });
+    searchEl.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter'){
+        e.preventDefault();
+        const q = searchEl.value.trim();
+        if(!q){ clearHighlights(); return; }
+        if(!matches.length) collectMatches(q);
+        jumpToNext();
+      }
+    });
+
+    // Init with sample or saved
+    const started = loadSaved();
+    if(!started){
+      const sample = [
+        { text:'复习计划', children:[
+          { text:'数学', children:[ {text:'公式整理'}, {text:'错题本'}, {text:'模拟题'} ] },
+          { text:'英语', children:[ {text:'词汇复盘'}, {text:'语法要点'}, {text:'作文模板'} ] },
+          { text:'专业课', children:[ {text:'核心概念'}, {text:'案例分析'} ] },
+          { text:'安排', children:[ {text:'周计划'}, {text:'月度里程碑'} ] }
+        ]}
+      ];
+      render(sample); scheduleSave();
+    }
+
+    // Auto-save on unload
+    window.addEventListener('beforeunload', saveNow);
+  </script>
+</body>
+</html>

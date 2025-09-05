@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+
+
+        .box {
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="top">
+        hello
+    </div>
+    <div class="bottom">
+        <button class="tap" type="button">tap</button>
+        <div class="box">
+            <div class="content">
+                17:49:05.349 hmr update /pages/index/index.vue<br>
+                18:17:39.981 hmr update /pages/index/index.vue<br>
+                18:18:00.153 hmr update /pages/index/index.vue<br>
+                18:19:04.892 hmr update /pages/index/index.vue<br>
+                18:19:16.205 hmr update /pages/index/index.vue<br>
+                18:19:56.445 hmr update /pages/index/index.vue<br>
+                18:20:21.071 hmr update /pages/index/index.vue<br>
+            </div>
+        </div>
+    </div>    <div class="bottom">
+        <button class="tap" type="button">tap</button>
+        <div class="box">
+            <div class="content">
+                17:49:05.349 hmr update /pages/index/index.vue<br>
+                18:17:39.981 hmr update /pages/index/index.vue<br>
+                18:18:00.153 hmr update /pages/index/index.vue<br>
+                18:19:04.892 hmr update /pages/index/index.vue<br>
+                18:19:16.205 hmr update /pages/index/index.vue<br>
+                18:19:56.445 hmr update /pages/index/index.vue<br>
+                18:20:21.071 hmr update /pages/index/index.vue<br>
+            </div>
+        </div>
+    </div>    <div class="bottom">
+        <button class="tap" type="button">tap</button>
+        <div class="box">
+            <div class="content">
+                17:49:05.349 hmr update /pages/index/index.vue<br>
+                18:17:39.981 hmr update /pages/index/index.vue<br>
+                18:18:00.153 hmr update /pages/index/index.vue<br>
+                18:19:04.892 hmr update /pages/index/index.vue<br>
+                18:19:16.205 hmr update /pages/index/index.vue<br>
+                18:19:56.445 hmr update /pages/index/index.vue<br>
+                18:20:21.071 hmr update /pages/index/index.vue<br>
+            </div>
+        </div>
+    </div>    <div class="bottom">
+        <button class="tap" type="button">tap</button>
+        <div class="box">
+            <div class="content">
+                17:49:05.349 hmr update /pages/index/index.vue<br>
+                18:17:39.981 hmr update /pages/index/index.vue<br>
+                18:18:00.153 hmr update /pages/index/index.vue<br>
+                18:19:04.892 hmr update /pages/index/index.vue<br>
+                18:19:16.205 hmr update /pages/index/index.vue<br>
+                18:19:56.445 hmr update /pages/index/index.vue<br>
+                18:20:21.071 hmr update /pages/index/index.vue<br>
+            </div>
+        </div>
+    </div>    <div class="bottom">
+        <button class="tap" type="button">tap</button>
+        <div class="box">
+            <div class="content">
+                17:49:05.349 hmr update /pages/index/index.vue<br>
+                18:17:39.981 hmr update /pages/index/index.vue<br>
+                18:18:00.153 hmr update /pages/index/index.vue<br>
+                18:19:04.892 hmr update /pages/index/index.vue<br>
+                18:19:16.205 hmr update /pages/index/index.vue<br>
+                18:19:56.445 hmr update /pages/index/index.vue<br>
+                18:20:21.071 hmr update /pages/index/index.vue<br>
+            </div>
+        </div>
+    </div>    <div class="bottom">
+        <button class="tap" type="button">tap</button>
+        <div class="box">
+            <div class="content">
+                17:49:05.349 hmr update /pages/index/index.vue<br>
+                18:17:39.981 hmr update /pages/index/index.vue<br>
+                18:18:00.153 hmr update /pages/index/index.vue<br>
+                18:19:04.892 hmr update /pages/index/index.vue<br>
+                18:19:16.205 hmr update /pages/index/index.vue<br>
+                18:19:56.445 hmr update /pages/index/index.vue<br>
+                18:20:21.071 hmr update /pages/index/index.vue<br>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script>
+        const buttons = document.querySelectorAll('.tap');
+        buttons.forEach(button => {
+            const content = button.closest('.bottom').querySelector('.box');
+            if (!content.style.maxHeight) {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            }
+
+            button.addEventListener('click', () => {
+                content.classList.toggle('close');
+
+                if (content.classList.contains('close')) {
+                    content.style.maxHeight = '0';
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

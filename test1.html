@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Neon Music Visualizer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary: #6e45e2;
+            --secondary: #88d3ce;
+        }
+        
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0f0c29, #302b63);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+        
+        /* 玻璃拟态播放器容器 */
+        .player-container {
+            width: 80%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* 标题样式 */
+        .title {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-shadow: 0 0 10px var(--primary);
+        }
+        
+        /* 上传按钮美化 */
+        .upload-btn {
+            display: block;
+            width: 200px;
+            margin: 0 auto 20px;
+            padding: 12px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(110, 69, 226, 0.4);
+        }
+        
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(110, 69, 226, 0.6);
+        }
+        
+        /* 隐藏默认文件输入 */
+        #audioUpload {
+            display: none;
+        }
+        
+        /* 可视化画布 */
+        #visualizer {
+            width: 100%;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        /* 播放控制条 */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        /* 进度条 */
+        #progressBar {
+            flex-grow: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        #progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 3px;
+            transition: width 0.1s;
+        }
+        
+        /* 时间显示 */
+        .time {
+            color: white;
+            font-size: 14px;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        /* 动态粒子背景 */
+        #particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        /* 音频信息显示 */
+        .song-info {
+            color: white;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- 动态粒子背景 -->
+    <canvas id="particles"></canvas>
+    
+    <!-- 主播放器 -->
+    <div class="player-container">
+        <h1 class="title">Neon Music Visualizer</h1>
+        
+        <button class="upload-btn" onclick="document.getElementById('audioUpload').click()">
+            🎵 选择音乐文件
+        </button>
+        <input type="file" id="audioUpload" accept="audio/*">
+        
+        <div class="song-info" id="songInfo">未加载音乐</div>
+        
+        <canvas id="visualizer"></canvas>
+        
+        <div class="controls">
+            <button class="control-btn" id="playBtn">▶</button>
+            <div id="progressBar" onclick="seekAudio(event)">
+                <div id="progress"></div>
+            </div>
+            <div class="time" id="timeDisplay">0:00 / 0:00</div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 音频核心逻辑 ==========
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 512;
+        const frequencyData = new Uint8Array(analyser.frequencyBinCount);
+        const waveformData = new Uint8Array(analyser.frequencyBinCount);
+        
+        let audioBuffer = null;
+        let audioSource = null;
+        let isPlaying = false;
+        let startTime = 0;
+        let pauseTime = 0;
+        
+        // DOM元素
+        const visualizer = document.getElementById('visualizer');
+        const ctx = visualizer.getContext('2d');
+        const playBtn = document.getElementById('playBtn');
+        const progress = document.getElementById('progress');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const songInfo = document.getElementById('songInfo');
+        
+        // 文件选择处理
+        document.getElementById('audioUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            songInfo.textContent = `${file.name} • ${(file.size / 1024 / 1024).toFixed(1)} MB`;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                audioContext.decodeAudioData(e.target.result).then(buffer => {
+                    audioBuffer = buffer;
+                    initAudio(buffer);
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        });
+        
+        function initAudio(buffer) {
+            if (audioSource) audioSource.stop();
+            
+            audioSource = audioContext.createBufferSource();
+            audioSource.buffer = buffer;
+            audioSource.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
+            // 设置播放事件
+            audioSource.onended = function() {
+                isPlaying = false;
+                playBtn.textContent = '▶';
+                pauseTime = 0;
+                updateProgress(0);
+            };
+            
+            playBtn.textContent = '▶';
+            isPlaying = false;
+            pauseTime = 0;
+            updateProgress(0);
+            
+            // 初始化可视化
+            resizeCanvas();
+            drawVisualizer();
+        }
+        
+        // 播放/暂停控制
+        playBtn.addEventListener('click', function() {
+            if (!audioBuffer) return;
+            
+            if (isPlaying) {
+                // 暂停
+                audioSource.stop();
+                pauseTime = audioContext.currentTime - startTime;
+                isPlaying = false;
+                playBtn.textContent = '▶';
+            } else {
+                // 播放
+                audioSource = audioContext.createBufferSource();
+                audioSource.buffer = audioBuffer;
+                audioSource.connect(analyser);
+                analyser.connect(audioContext.destination);
+                
+                startTime = audioContext.currentTime - pauseTime;
+                audioSource.start(0, pauseTime);
+                
+                audioSource.onended = function() {
+                    isPlaying = false;
+                    playBtn.textContent = '▶';
+                    pauseTime = 0;
+                    updateProgress(0);
+                };
+                
+                isPlaying = true;
+                playBtn.textContent = '⏸';
+            }
+        });
+        
+        // 进度条跳转
+        function seekAudio(event) {
+            if (!audioBuffer || !isPlaying) return;
+            
+            const percent = event.offsetX / event.target.offsetWidth;
+            const seekTime = percent * audioBuffer.duration;
+            
+            // 停止当前播放并重新开始
+            audioSource.stop();
+            audioSource = audioContext.createBufferSource();
+            audioSource.buffer = audioBuffer;
+            audioSource.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
+            startTime = audioContext.currentTime - seekTime;
+            audioSource.start(0, seekTime);
+            
+            audioSource.onended = function() {
+                isPlaying = false;
+                playBtn.textContent = '▶';
+                pauseTime = 0;
+                updateProgress(0);
+            };
+            
+            pauseTime = seekTime;
+        }
+        
+        // 更新进度条
+        function updateProgress(currentTime) {
+            if (!audioBuffer) return;
+            
+            const duration = audioBuffer.duration;
+            const progressPercent = (currentTime / duration) * 100;
+            progress.style.width = `${progressPercent}%`;
+            
+            // 更新时间显示
+            const formatTime = (time) => {
+                const mins = Math.floor(time / 60);
+                const secs = Math.floor(time % 60).toString().padStart(2, '0');
+                return `${mins}:${secs}`;
+            };
+            
+            timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+        }
+        
+        // ========== 可视化效果 ==========
+        function resizeCanvas() {
+            visualizer.width = visualizer.offsetWidth;
+            visualizer.height = visualizer.offsetHeight;
+        }
+        
+        window.addEventListener('resize', function() {
+            resizeCanvas();
+        });
+        
+        function drawVisualizer() {
+            requestAnimationFrame(drawVisualizer);
+            
+            if (!isPlaying) {
+                // 显示待机动画
+                ctx.clearRect(0, 0, visualizer.width, visualizer.height);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+                ctx.textAlign = 'center';
+                ctx.font = '20px Arial';
+                ctx.fillText('等待音乐加载...', visualizer.width / 2, visualizer.height / 2);
+                return;
+            }
+            
+            // 获取音频数据
+            analyser.getByteFrequencyData(frequencyData);
+            analyser.getByteTimeDomainData(waveformData);
+            
+            const width = visualizer.width;
+            const height = visualizer.height;
+            
+            // 清空画布
+            ctx.clearRect(0, 0, width, height);
+            
+            // 绘制频谱（上半部分）
+            const barCount = 100;
+            const barWidth = width / barCount;
+            
+            for (let i = 0; i < barCount; i++) {
+                const index = Math.floor(i * frequencyData.length / barCount);
+                const value = frequencyData[index] / 255;
+                
+                // 动态颜色
+                const hue = (i / barCount * 360 + Date.now() / 1000 * 20) % 360;
+                ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${0.2 + value * 0.8})`;
+                
+                const barHeight = value * height * 0.4;
+                ctx.fillRect(
+                    i * barWidth, 
+                    height * 0.5 - barHeight, 
+                    barWidth * 0.8, 
+                    barHeight
+                );
+            }
+            
+            // 绘制波形（下半部分）
+            ctx.beginPath();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            
+            for (let i = 0; i < waveformData.length; i++) {
+                const x = i / waveformData.length * width;
+                const y = (waveformData[i] / 128) * (height * 0.4) + height * 0.6;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // 更新进度
+            updateProgress(pauseTime + (audioContext.currentTime - startTime));
+        }
+        
+        // ========== 动态粒子背景 ==========
+        const particlesCanvas = document.getElementById('particles');
+        const particlesCtx = particlesCanvas.getContext('2d');
+        
+        particlesCanvas.width = window.innerWidth;
+        particlesCanvas.height = window.innerHeight;
+        
+        const particles = [];
+        const particleCount = 50;
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * particlesCanvas.width;
+                this.y = Math.random() * particlesCanvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 2 - 1;
+                this.color = `hsla(${Math.random() * 360}, 100%, 50%, 0.5)`;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                if (this.x < 0 || this.x > particlesCanvas.width) {
+                    this.speedX *= -1;
+                }
+                
+                if (this.y < 0 || this.y > particlesCanvas.height) {
+                    this.speedY *= -1;
+                }
+                
+                // 响应音乐
+                if (frequencyData && frequencyData.length > 0) {
+                    const index = Math.floor(this.x / particlesCanvas.width * frequencyData.length);
+                    const energy = frequencyData[index] / 255;
+                    
+                    this.size = energy * 5 + 1;
+                    this.speedX = (Math.random() * 4 - 2) * (energy + 0.1);
+                    this.speedY = (Math.random() * 4 - 2) * (energy + 0.1);
+                }
+            }
+            
+            draw() {
+                particlesCtx.beginPath();
+                particlesCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                particlesCtx.fillStyle = this.color;
+                particlesCtx.fill();
+            }
+        }
+        
+        function initParticles() {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        function animateParticles() {
+            particlesCtx.clearRect(0, 0, particlesCanvas.width, particlesCanvas.height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+            }
+            
+            requestAnimationFrame(animateParticles);
+        }
+        
+        // 初始化
+        resizeCanvas();
+        initParticles();
+        animateParticles();
+        drawVisualizer();
+    </script>
+</body>
+</html>
