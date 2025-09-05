@@ -3,171 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Git 速查表</title>
+    <title>Git 操作教程</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 0;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h1, h2, h3 {
             color: #333;
         }
-
-        header {
-            background-color: #24292f;
-            color: white;
-            text-align: center;
-            padding: 20px;
+        pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow-x: auto;
         }
-
-        h1 {
-            margin: 0;
-            font-size: 2.5em;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
         .section {
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
-
-        .section h2 {
-            font-size: 1.8em;
-            margin-bottom: 10px;
-            color: #007acc;
+        .note {
+            background-color: #fff3cd;
+            padding: 10px;
+            border: 1px solid #ffeeba;
+            border-radius: 5px;
+            color: #856404;
+            font-weight: bold;
         }
-
         .command {
-            background-color: #f1f1f1;
-            border-left: 4px solid #007acc;
-            padding: 10px;
-            margin: 5px 0;
-            font-family: "Courier New", Courier, monospace;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            padding: 5px 0;
-        }
-
-        footer {
-            text-align: center;
-            font-size: 0.9em;
-            color: #888;
-            padding: 10px 0;
-            background-color: #f1f1f1;
-            margin-top: 30px;
-        }
-
-        .tip {
-            background-color: #f8f8f8;
-            border-left: 5px solid #28a745;
-            padding: 10px;
-            font-size: 1.1em;
+            color: #007bff;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Git 速查表</h1>
-        <p>快速查看常用的 Git 命令和操作</p>
-    </header>
 
-    <div class="container">
-        <section class="section">
-            <h2>基础操作</h2>
-            <div class="command">
-                <p><strong>git init</strong> — 初始化一个 Git 仓库</p>
-            </div>
-            <div class="command">
-                <p><strong>git clone [url]</strong> — 克隆一个远程仓库</p>
-            </div>
-            <div class="command">
-                <p><strong>git status</strong> — 查看当前工作区状态</p>
-            </div>
-            <div class="command">
-                <p><strong>git add [file]</strong> — 将文件添加到暂存区</p>
-            </div>
-            <div class="command">
-                <p><strong>git commit -m "message"</strong> — 提交更改并添加提交信息</p>
-            </div>
-            <div class="command">
-                <p><strong>git log</strong> — 查看提交历史</p>
-            </div>
-        </section>
+    <h1>Git 操作教程</h1>
+    <p>这份教程详细介绍了常用的 Git 命令以及每个命令的功能和使用方法。</p>
 
-        <section class="section">
-            <h2>分支操作</h2>
-            <div class="command">
-                <p><strong>git branch</strong> — 查看所有分支</p>
-            </div>
-            <div class="command">
-                <p><strong>git branch [branch-name]</strong> — 创建新分支</p>
-            </div>
-            <div class="command">
-                <p><strong>git checkout [branch-name]</strong> — 切换分支</p>
-            </div>
-            <div class="command">
-                <p><strong>git merge [branch-name]</strong> — 合并分支</p>
-            </div>
-        </section>
-
-        <section class="section">
-            <h2>远程操作</h2>
-            <div class="command">
-                <p><strong>git remote -v</strong> — 查看远程仓库</p>
-            </div>
-            <div class="command">
-                <p><strong>git push [origin] [branch-name]</strong> — 将分支推送到远程仓库</p>
-            </div>
-            <div class="command">
-                <p><strong>git pull [origin] [branch-name]</strong> — 从远程仓库拉取更新</p>
-            </div>
-            <div class="command">
-                <p><strong>git fetch</strong> — 获取远程仓库更新</p>
-            </div>
-        </section>
-
-        <section class="section">
-            <h2>其他常用操作</h2>
-            <div class="command">
-                <p><strong>git diff</strong> — 查看当前更改</p>
-            </div>
-            <div class="command">
-                <p><strong>git stash</strong> — 暂存当前更改（撤销更改但保留）</p>
-            </div>
-            <div class="command">
-                <p><strong>git reset [file]</strong> — 撤销文件的更改</p>
-            </div>
-            <div class="command">
-                <p><strong>git rm [file]</strong> — 删除文件并从版本控制中移除</p>
-            </div>
-            <div class="command">
-                <p><strong>git tag [tag-name]</strong> — 为提交打标签</p>
-            </div>
-        </section>
-
-        <section class="section">
-            <h2>小贴士</h2>
-            <div class="tip">
-                <p><strong>建议使用 Git 分支</strong>：在开发新功能或修复 bug 时，始终创建一个新的分支。这样可以保持主分支（如 `master` 或 `main`）的稳定性。</p>
-            </div>
-        </section>
+    <div class="section">
+        <h2>1. 初始化 Git 仓库</h2>
+        <p>要将一个项目目录初始化为 Git 仓库，使用以下命令：</p>
+        <pre><code class="command">git init</code></pre>
+        <p>这个命令会在当前目录创建一个新的 Git 仓库，生成 `.git` 文件夹。</p>
     </div>
 
-    <footer>
-        <p>© 2025 Git 速查表</p>
-    </footer>
+    <div class="section">
+        <h2>2. 配置 Git 用户信息</h2>
+        <p>配置 Git 用户信息，确保你提交时能够正确显示作者信息：</p>
+        <pre><code class="command">git config --global user.name "Your Name"</code></pre>
+        <pre><code class="command">git config --global user.email "your.email@example.com"</code></pre>
+        <p><strong>注意：</strong>如果你不使用 <code>--global</code> 选项，配置仅会作用于当前项目。</p>
+    </div>
+
+    <div class="section">
+        <h2>3. 克隆远程仓库</h2>
+        <p>如果你想从远程仓库（如 GitHub）克隆一个已有的 Git 项目：</p>
+        <pre><code class="command">git clone <repository-url></code></pre>
+        <p>此命令会将远程仓库的内容克隆到本地目录，并自动创建一个名为 <code>origin</code> 的远程仓库。</p>
+    </div>
+
+    <div class="section">
+        <h2>4. 查看当前 Git 状态</h2>
+        <p>查看当前仓库的状态，可以使用：</p>
+        <pre><code class="command">git status</code></pre>
+        <p>该命令会显示哪些文件已修改、哪些文件已暂存、哪些文件未被跟踪等信息。</p>
+    </div>
+
+    <div class="section">
+        <h2>5. 添加文件到暂存区</h2>
+        <p>将修改过的文件添加到暂存区（准备提交）：</p>
+        <pre><code class="command">git add <file-name></code></pre>
+        <p>你可以使用 <code>git add .</code> 添加当前目录下所有修改的文件。</p>
+        <p class="note">注意：只有添加到暂存区的文件，才能被提交。</p>
+    </div>
+
+    <div class="section">
+        <h2>6. 提交更改</h2>
+        <p>将暂存区的更改提交到本地仓库：</p>
+        <pre><code class="command">git commit -m "Your commit message"</code></pre>
+        <p>提交时一定要写清晰的提交信息，以便之后理解每次提交的目的。</p>
+    </div>
+
+    <div class="section">
+        <h2>7. 查看提交历史</h2>
+        <p>查看 Git 仓库的提交历史：</p>
+        <pre><code class="command">git log</code></pre>
+        <p>使用 <code>git log --oneline</code> 可以简化输出，仅显示每次提交的简短哈希值和提交信息。</p>
+    </div>
+
+    <div class="section">
+        <h2>8. 创建并切换分支</h2>
+        <p>要创建一个新的分支并切换到该分支：</p>
+        <pre><code class="command">git checkout -b <branch-name></code></pre>
+        <p>这会创建一个名为 <code>branch-name</code> 的新分支，并切换到该分支。</p>
+    </div>
+
+    <div class="section">
+        <h2>9. 切换分支</h2>
+        <p>要切换到已存在的分支：</p>
+        <pre><code class="command">git checkout <branch-name></code></pre>
+        <p>此命令将切换到指定的分支。</p>
+    </div>
+
+    <div class="section">
+        <h2>10. 合并分支</h2>
+        <p>将某个分支的更改合并到当前分支：</p>
+        <pre><code class="command">git merge <branch-name></code></pre>
+        <p>例如，如果你当前在 `main` 分支上，执行此命令会将指定的 `<branch-name>` 分支的修改合并到 `main` 分支。</p>
+    </div>
+
+    <div class="section">
+        <h2>11. 拉取远程更新</h2>
+        <p>从远程仓库拉取最新的更新，并合并到本地分支：</p>
+        <pre><code class="command">git pull</code></pre>
+        <p>如果你想从指定的远程仓库和分支拉取更新：</p>
+        <pre><code class="command">git pull origin <branch-name></code></pre>
+    </div>
+
+    <div class="section">
+        <h2>12. 推送更改到远程仓库</h2>
+        <p>将本地仓库的更改推送到远程仓库：</p>
+        <pre><code class="command">git push</code></pre>
+        <p>如果要推送特定的分支：</p>
+        <pre><code class="command">git push origin <branch-name></code></pre>
+    </div>
+
+    <div class="section">
+        <h2>13. 删除分支</h2>
+        <p>删除本地分支：</p>
+        <pre><code class="command">git branch -d <branch-name></code></pre>
+        <p>如果你要强制删除未合并的分支，可以使用：</p>
+        <pre><code class="command">git branch -D <branch-name></code></pre>
+    </div>
+
+    <div class="section">
+        <h2>14. 查看远程仓库信息</h2>
+        <p>查看已配置的远程仓库信息：</p>
+        <pre><code class="command">git remote -v</code></pre>
+    </div>
+
+    <div class="section">
+        <h2>15. 删除远程分支</h2>
+        <p>删除远程分支：</p>
+        <pre><code class="command">git push origin --delete <branch-name></code></pre>
+    </div>
+
 </body>
 </html>
