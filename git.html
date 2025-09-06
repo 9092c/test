@@ -1,190 +1,537 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Git 完整操作教程</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-            background-color: #f4f4f9;
-        }
-        h1, h2, h3 {
-            line-height: 1.6;
-            margin: 20px;
-            background-color: #f4f4f9;
-        }
-        h1, h2, h3 {
-            color: #333;
-        }
-        pre {
-            background-color: #f0f0f0;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            overflow-x: auto;
-        pre {
-            background-color: #f0f0f0;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        .section {
-            margin-bottom: 40px;
-            margin-bottom: 40px;
-        }
-        .note {
-            background-color: #fff3cd;
-        .note {
-            background-color: #fff3cd;
-            padding: 10px;
-            border: 1px solid #ffeeba;
-            border-radius: 5px;
-            color: #856404;
-            font-weight: bold;
-        }
-        .command {
-            color: #007bff;
-            border: 1px solid #ffeeba;
-            border-radius: 5px;
-            color: #856404;
-            font-weight: bold;
-        }
-        .command {
-            color: #007bff;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Git 命令大全：初始化、增删改查、进阶与全部命令速查</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#0f172a; --ink:#e2e8f0; --muted:#94a3b8; --accent:#22d3ee;
+      --card:#111827; --chip:#1f2937; --code:#0b132b; --green:#34d399; --red:#f87171; --orange:#fb923c;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b1020,#0b1020 60%,#101830);color:var(--ink);font:15px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    a{color:var(--accent);text-decoration:none}
+    .wrap{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+    .side{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:24px;background:linear-gradient(180deg,#0b1020,#0b1020)}
+    .logo{font-size:18px;font-weight:800;letter-spacing:.3px;margin-bottom:8px}
+    .subtitle{color:var(--muted);font-size:12px;margin-bottom:16px}
+    .toc{display:flex;flex-direction:column;gap:6px}
+    .toc a{padding:8px 12px;border-radius:10px;color:var(--ink)}
+    .toc a:hover{background:#11182d}
+    .main{padding:28px 28px 80px}
+    .hero{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+    .badge{display:inline-flex;gap:6px;align-items:center;background:var(--chip);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:12px}
+    .h1{font-size:28px;font-weight:900;margin:6px 0 8px}
+    .p{color:var(--muted);max-width:900px}
+    .search{margin-top:16px;display:flex;gap:12px;align-items:center}
+    .search input{flex:1;padding:12px 14px;border:1px solid #1f2b44;border-radius:12px;background:#0c142a;color:var(--ink)}
+    .grid{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+    .card{background:linear-gradient(180deg,#111827,#0f172a);border:1px solid #1f2b44;border-radius:16px;padding:16px}
+    .card h3{margin:0 0 8px;font-size:16px}
+    .card .desc{color:var(--muted);font-size:13px;margin-bottom:10px}
+    pre,code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .cmd{background:var(--code);border:1px solid #1f2b44;border-radius:12px;padding:10px;overflow:auto}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .chip{background:#0e1a33;color:#93c5fd;border:1px solid #1f2b44;padding:2px 8px;border-radius:999px;font-size:11px}
+    .copy{margin-left:auto;background:#0f2a45;border:1px solid #1f2b44;color:#c7d2fe;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px}
+    .section{margin-top:36px}
+    .section h2{font-size:22px;margin:0 0 8px}
+    details{border:1px solid #1f2b44;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#0c1326,#0c142a)}
+    summary{cursor:pointer;padding:12px 14px;font-weight:700}
+    .panel{padding:12px 14px;border-top:1px solid #1f2b44}
+    .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media (max-width: 980px){.wrap{grid-template-columns:1fr}.side{position:relative;height:auto}.twocol{grid-template-columns:1fr}}
+    .kbd{font-size:12px;padding:2px 6px;border-radius:6px;background:#0e1a33;border:1px solid #1f2b44;color:#93c5fd}
+    .note{border-left:3px solid var(--accent);padding:10px 12px;background:#0a1530;border-radius:8px}
+    hr{border:0;border-top:1px solid #1f2b44;margin:26px 0}
+    .foot{margin-top:36px;color:var(--muted);font-size:12px}
+    mark{background:rgba(34,211,238,.15);color:#a5f3fc;border-radius:6px;padding:0 4px}
+  </style>
 </head>
 <body>
+<div class="wrap">
+  <aside class="side">
+    <div class="logo">🐙 Git 命令大全</div>
+    <div class="subtitle">初始化、增删改查、协作、进阶与故障恢复</div>
+    <nav class="toc" id="toc"></nav>
+    <hr>
+    <div class="subtitle">小贴士</div>
+    <ul style="padding-left:16px;color:var(--muted);line-height:1.8">
+      <li><span class="kbd">--help</span> 查看任何命令的帮助</li>
+      <li><span class="kbd">-n/--dry-run</span> 先试运行不改动</li>
+      <li><span class="kbd">-v</span> 更详细输出</li>
+    </ul>
+  </aside>
+  <main class="main">
+    <section class="hero">
+      <span class="badge"><span>📚</span>一页掌握 Git</span>
+      <div class="h1">Git 命令速查与实战示例</div>
+      <p class="p">本页覆盖从入门到进阶的大部分 Git 命令：初始化、增删改查、分支与合并、远端协作、回滚与恢复、子模块、工作区、稀疏检出、二分定位、维护等；末尾提供 <mark>完整命令清单（A–Z）</mark> 方便检索。</p>
+      <div class="search">
+        <input id="q" placeholder="搜索命令/关键字，例如：rebase、冲突、恢复、子模块…" />
+        <button class="copy" id="clearBtn">清空</button>
+      </div>
+    </section>
 
-    <h1>Git 完整操作教程</h1>
-    <p>本教程详细介绍了 Git 所有常见的命令和操作，包括初始化、配置、增、删、改、查、分支管理、远程操作等，并提供了每个命令的详细说明，帮助你掌握 Git 的各项功能。</p>
-
-    <!-- 初始化和配置部分 -->
-    <div class="section">
-        <h2>1. 初始化和配置</h2>
-        
-        <h3>1.1 初始化仓库</h3>
-        <pre><code class="command">git init</code></pre>
-        <p><strong>解释：</strong>初始化一个新的 Git 仓库。在当前目录创建一个 <code>.git</code> 隐藏文件夹，开始版本控制。</p>
-        
-        <h3>1.2 配置用户信息</h3>
-        <pre><code class="command">git config --global user.name "Your Name"</code></pre>
-        <pre><code class="command">git config --global user.email "your.email@example.com"</code></pre>
-        <p><strong>解释：</strong>设置全局的用户名和电子邮箱，在提交记录中显示。将 <code>Your Name</code> 和 <code>your.email@example.com</code> 替换为你的名字和电子邮箱。</p>
+    <div class="section" id="sec-quickstart">
+      <h2>🚀 快速上手（典型工作流）</h2>
+      <div class="grid">
+        <div class="card" data-tags="init clone add commit push 新建 提交 远端">
+          <h3>新建仓库并首次推送</h3>
+          <div class="desc">从零开始到远端上线</div>
+          <pre class="cmd"><code>git init
+git add .
+git commit -m "init"
+git branch -M main
+git remote add origin &lt;url&gt;
+git push -u origin main</code></pre>
+        </div>
+        <div class="card" data-tags="clone pull branch switch merge 提交 合并">
+          <h3>团队开发（功能分支）</h3>
+          <pre class="cmd"><code>git clone &lt;url&gt;
+cd repo
+git switch -c feat/x
+# 开发与提交
+git add -A && git commit -m "feat: x"
+# 合并到主分支
+git switch main && git pull --ff-only && git merge --no-ff feat/x
+git push</code></pre>
+        </div>
+        <div class="card" data-tags="rebase rebase-交互 线性历史 冲突">
+          <h3>保持线性历史（rebase）</h3>
+          <pre class="cmd"><code>git fetch origin
+git rebase origin/main   # 先在本地变基
+# 解决冲突后：
+git rebase --continue
+# 推送覆盖自己的分支：
+git push -f</code></pre>
+        </div>
+        <div class="card" data-tags="stash 暂存 临时 保存 revert reset 恢复 回滚">
+          <h3>紧急修复 & 回滚</h3>
+          <pre class="cmd"><code># 保存现场
+git stash push -m "WIP"
+# 修复问题并提交
+# 回滚错误提交
+git revert &lt;bad-commit&gt;
+# 恢复现场
+git stash pop</code></pre>
+        </div>
+      </div>
     </div>
 
-    <!-- 增、删、改、查部分 -->
-    <div class="section">
-        <h2>2. 增、删、改、查</h2>
+    <div class="section" id="sec-basic">
+      <h2>🧱 基础：初始化、配置、增删改查</h2>
+      <div class="twocol">
+        <div>
+          <details open>
+            <summary>初始化与配置</summary>
+            <div class="panel">
+<pre class="cmd"><code>git init [--bare]                 # 初始化仓库（--bare 作为服务器端仓库）
+git clone &lt;url&gt; [dir]             # 克隆远端仓库
 
-        <h3>2.1 添加文件到暂存区</h3>
-        <pre><code class="command">git add <file-name></code></pre>
-        <pre><code class="command">git add .</code></pre>
-        <p><strong>解释：</strong>将指定的文件或当前目录下所有更改过的文件添加到暂存区，准备提交。</p>
-        
-        <h3>2.2 提交更改</h3>
-        <pre><code class="command">git commit -m "Your commit message"</code></pre>
-        <p><strong>解释：</strong>将暂存区的更改提交到本地仓库，并为提交添加说明信息。</p>
+git config --global user.name "张三"
+git config --global user.email "me@example.com"
+# 常用配置
+git config --global init.defaultBranch main
+git config --global core.autocrlf input     # macOS/Linux 建议 input；Windows 建议 true
+git config --global pull.rebase false       # 或 true 视团队策略
 
-        <h3>2.3 查看状态</h3>
-        <pre><code class="command">git status</code></pre>
-        <p><strong>解释：</strong>查看当前工作区和暂存区的状态，显示修改过的文件、待提交的文件等信息。</p>
+git help -a                                # 列出全部子命令
+</code></pre>
+            </div>
+          </details>
 
-        <h3>2.4 查看提交历史</h3>
-        <pre><code class="command">git log</code></pre>
-        <p><strong>解释：</strong>查看仓库的提交历史，显示每次提交的哈希值、作者、提交时间及提交说明。</p>
+          <details open>
+            <summary>状态、查看与查询</summary>
+            <div class="panel">
+<pre class="cmd"><code>git status                     # 工作区/暂存区状态
+git diff                       # 工作区改动
+git diff --staged              # 暂存区改动
+git log --oneline --graph --decorate --all  # 美观历史
+git show &lt;obj&gt;                 # 查看提交/标签/对象详情
+git grep "pattern"             # 在版本库中搜索
+</code></pre>
+            </div>
+          </details>
 
-        <h3>2.5 查看某文件的修改历史</h3>
-        <pre><code class="command">git log <file-name></code></pre>
-        <p><strong>解释：</strong>查看指定文件的提交历史。</p>
+          <details open>
+            <summary>增、删、改（提交相关）</summary>
+            <div class="panel">
+<pre class="cmd"><code>git add &lt;file|dir&gt;             # 添加到暂存区
+git add -A                     # 包含删除
+git restore --staged &lt;path&gt;    # 从暂存区撤回
+
+git commit -m "msg"            # 新提交
+git commit --amend             # 修改上一条提交（慎对已推送）
+
+git rm &lt;path&gt;                 # 删除文件并暂存
+git mv a b                     # 重命名/移动
+</code></pre>
+            </div>
+          </details>
+        </div>
+        <div>
+          <details open>
+            <summary>分支、切换与合并</summary>
+            <div class="panel">
+<pre class="cmd"><code>git branch                     # 列出本地分支
+git branch -r                  # 远端分支
+git switch -c feat/x           # 新建并切换
+# 亦可：git checkout -b feat/x
+
+git merge feat/x               # 合并（可能产生合并提交）
+git merge --ff-only            # 仅快进
+
+git rebase main                # 变基到 main
+git rebase -i HEAD~5           # 交互式整理最近 5 次提交
+</code></pre>
+            </div>
+          </details>
+
+          <details open>
+            <summary>远端协作</summary>
+            <div class="panel">
+<pre class="cmd"><code>git remote -v                  # 查看远端
+git remote add origin &lt;url&gt;
+
+git fetch [origin]             # 拉取但不合并
+git pull                       # 拉取并合并（或变基，取决于配置）
+
+git push                       # 推送当前分支
+git push -u origin &lt;branch&gt;    # 设置上游
+
+git push --tags                # 推送所有标签
+</code></pre>
+            </div>
+          </details>
+
+          <details>
+            <summary>标签（版本发布）</summary>
+            <div class="panel">
+<pre class="cmd"><code>git tag v1.0.0                 # 轻量标签
+git tag -a v1.0.0 -m "release" # 附注标签（推荐）
+
+git show v1.0.0
+
+git push origin v1.0.0         # 推送单个标签
+</code></pre>
+            </div>
+          </details>
+        </div>
+      </div>
     </div>
 
-    <!-- 分支管理 -->
-    <div class="section">
-        <h2>3. 分支管理</h2>
-
-        <h3>3.1 创建新分支</h3>
-        <pre><code class="command">git branch <branch-name></code></pre>
-        <p><strong>解释：</strong>创建一个新的分支，<code>branch-name</code> 是你为新分支指定的名字。</p>
-
-        <h3>3.2 切换分支</h3>
-        <pre><code class="command">git checkout <branch-name></code></pre>
-        <p><strong>解释：</strong>切换到指定的分支。</p>
-
-        <h3>3.3 创建并切换分支</h3>
-        <pre><code class="command">git checkout -b <branch-name></code></pre>
-        <p><strong>解释：</strong>创建一个新分支并立即切换到该分支。</p>
-
-        <h3>3.4 删除本地分支</h3>
-        <pre><code class="command">git branch -d <branch-name></code></pre>
-        <p><strong>解释：</strong>删除指定的本地分支。若该分支未合并，Git 会提示你确认删除。</p>
-
-        <h3>3.5 合并分支</h3>
-        <pre><code class="command">git merge <branch-name></code></pre>
-        <p><strong>解释：</strong>将指定的分支合并到当前分支。</p>
-
-        <h3>3.6 查看所有分支</h3>
-        <pre><code class="command">git branch</code></pre>
-        <p><strong>解释：</strong>查看所有本地分支，当前所在的分支前面会有一个 <code>*</code> 标记。</p>
+    <div class="section" id="sec-undo">
+      <h2>🛠️ 撤销、恢复与历史修复</h2>
+      <div class="grid">
+        <div class="card" data-tags="reset 恢复 回退 暂存 工作区">
+          <h3>reset：指针回退</h3>
+          <div class="desc">移动当前分支指针（慎用于共享历史）</div>
+<pre class="cmd"><code>git reset --soft HEAD~1    # 仅回退指针，保留暂存
+git reset --mixed HEAD~1   # 默认：回退指针+清空暂存，保留工作区
+git reset --hard HEAD~1    # 连同工作区一并回退（危险！）
+</code></pre>
+        </div>
+        <div class="card" data-tags="revert 撤销 提交 公共 分支">
+          <h3>revert：生成反向提交（安全）</h3>
+          <div class="desc">在公共分支撤销错误但保持历史可追踪</div>
+<pre class="cmd"><code>git revert &lt;commit&gt;
+# 批量撤销：
+git revert A..B   # 撤销 (A,B] 区间的提交
+</code></pre>
+        </div>
+        <div class="card" data-tags="stash 暂存 临时 保存 pop apply list drop">
+          <h3>stash：现场保存</h3>
+          <div class="desc">把未提交改动临时搁置，切分支/拉代码更安全</div>
+<pre class="cmd"><code>git stash push -m "WIP"
+git stash list
+git stash show -p stash@{0}
+git stash pop   # 应用并删除
+# 或：git stash apply 仅应用
+</code></pre>
+        </div>
+        <div class="card" data-tags="reflog 事故 恢复 丢失 指针">
+          <h3>reflog：失而复得</h3>
+          <div class="desc">找回被 reset/rebase 覆盖的提交</div>
+<pre class="cmd"><code>git reflog
+# 找到丢失提交的哈希后：
+git branch rescue &lt;hash&gt;
+</code></pre>
+        </div>
+      </div>
     </div>
 
-    <!-- 远程仓库操作 -->
-    <div class="section">
-        <h2>4. 远程仓库操作</h2>
+    <div class="section" id="sec-advanced">
+      <h2>🧭 进阶专题</h2>
+      <details open>
+        <summary>子模块（submodule）</summary>
+        <div class="panel">
+<pre class="cmd"><code># 添加子模块
+git submodule add &lt;url&gt; path
+# 初始化并抓取
+git submodule update --init --recursive
+# 更新所有子模块到远端追踪分支
+git submodule update --remote --merge
+</code></pre>
+        </div>
+      </details>
 
-        <h3>4.1 克隆远程仓库</h3>
-        <pre><code class="command">git clone <repository-url></code></pre>
-        <p><strong>解释：</strong>从远程仓库克隆一个项目到本地。</p>
+      <details>
+        <summary>多工作区（worktree）</summary>
+        <div class="panel">
+<pre class="cmd"><code>git worktree add ../repo-fix hotfix/x   # 同一仓库开两个工作区
+git worktree list
+git worktree remove ../repo-fix
+</code></pre>
+        </div>
+      </details>
 
-        <h3>4.2 查看远程仓库信息</h3>
-        <pre><code class="command">git remote -v</code></pre>
-        <p><strong>解释：</strong>查看当前项目配置的所有远程仓库。</p>
+      <details>
+        <summary>稀疏检出（sparse-checkout）</summary>
+        <div class="panel">
+<pre class="cmd"><code>git sparse-checkout init --cone
+git sparse-checkout set src/ docs/
+</code></pre>
+        </div>
+      </details>
 
-        <h3>4.3 添加远程仓库</h3>
-        <pre><code class="command">git remote add <name> <url></code></pre>
-        <p><strong>解释：</strong>将远程仓库 URL 添加到本地仓库，<code>name</code> 是仓库名称（通常是 <code>origin</code>），<code>url</code> 是远程仓库的 URL 地址。</p>
+      <details>
+        <summary>二分定位（bisect）</summary>
+        <div class="panel">
+<pre class="cmd"><code>git bisect start
+git bisect bad               # 标记当前为坏
+git bisect good &lt;v1.2.0&gt;     # 标记老版本为好
+# 反复测试直到定位首个坏提交
+git bisect reset
+</code></pre>
+        </div>
+      </details>
 
-        <h3>4.4 推送更改到远程仓库</h3>
-        <pre><code class="command">git push origin <branch-name></code></pre>
-        <p><strong>解释：</strong>将本地分支的更改推送到远程仓库指定分支。</p>
+      <details>
+        <summary>维护与体检</summary>
+        <div class="panel">
+<pre class="cmd"><code>git gc --aggressive           # 垃圾回收压缩（偶尔使用）
+git fsck                      # 完整性检查
+git prune                     # 修剪不可达对象（谨慎）
+</code></pre>
+        </div>
+      </details>
 
-        <h3>4.5 拉取远程更新</h3>
-        <pre><code class="command">git pull origin <branch-name></code></pre>
-        <p><strong>解释：</strong>从远程仓库拉取指定分支的更改并与本地分支合并。</p>
+      <details>
+        <summary>属性与忽略（.gitattributes / .gitignore）</summary>
+        <div class="panel">
+<pre class="cmd"><code># .gitignore 示例
+node_modules/
+.env
+*.log
 
-        <h3>4.6 删除远程分支</h3>
-        <pre><code class="command">git push origin --delete <branch-name></code></pre>
-        <p><strong>解释：</strong>删除远程仓库中的指定分支。</p>
+# .gitattributes 示例
+*.png binary
+*.sh text eol=lf
+</code></pre>
+        </div>
+      </details>
+
+      <details>
+        <summary>常见场景小抄</summary>
+        <div class="panel">
+<pre class="cmd"><code># 把若干提交压成一个（压缩提交）
+git rebase -i HEAD~N  # 把后 N 个标记为 squash/fixup
+
+# 从另一个分支拣选单个提交
+git cherry-pick &lt;commit&gt;
+
+# 仅取消暂存某文件、保留工作区
+git restore --staged path
+
+# 放弃本地更改，强制与远端一致（危险）
+git fetch origin
+git reset --hard origin/main
+</code></pre>
+        </div>
+      </details>
     </div>
 
-    <!-- 其他高级操作 -->
-    <div class="section">
-        <h2>5. 其他高级操作</h2>
-
-        <h3>5.1 变基操作</h3>
-        <pre><code class="command">git rebase <branch-name></code></pre>
-        <p><strong>解释：</strong>将当前分支的更改重新基于目标分支的最新提交，这有助于保持提交历史的清晰。</p>
-
-        <h3>5.2 暂存更改（Stash）</h3>
-        <pre><code class="command">git stash</code></pre>
-        <p><strong>解释：</strong>将当前的更改（未提交的文件）暂存起来，以便切换到其他分支处理紧急问题。</p>
-
-        <h3>5.3 恢复暂存的更改</h3>
-        <pre><code class="command">git stash pop</code></pre>
-        <p><strong>解释：</strong>恢复最后一次暂存的更改。</p>
-
-        <h3>5.4 重置提交</h3>
-        <pre><code class="command">git reset --hard <commit-id></code></pre>
-        <p><strong>解释：</strong>将当前分支重置到指定的提交（<code>commit-id</code>），并且丢弃后续的所有更改。</p>
-
-        <h3>5.5 标签管理</h3>
-        <pre><code class="command">git tag <tag-name></code></pre>
-        <p><strong>解释：</strong>为某个提交创建标签，用于版本标记或关键节点。</p>
+    <div class="section" id="sec-all">
+      <h2>📖 命令全表（A–Z）— 简要说明</h2>
+      <p class="note">说明：以下覆盖 Git 常见的 porcelain（高层命令）与大量 plumbing（底层命令）。个别平台/扩展命令可能因发行版不同而略有差异。</p>
+      <div class="grid" id="all-grid"></div>
     </div>
 
+    <div class="foot">本页为离线速查表。建议结合 <span class="kbd">git &lt;cmd&gt; --help</span> 与官方文档深入了解每个选项。</div>
+  </main>
+</div>
+
+<script>
+  // 目录与小工具
+  const tocItems = [
+    ['sec-quickstart','快速上手'],
+    ['sec-basic','基础命令'],
+    ['sec-undo','撤销与恢复'],
+    ['sec-advanced','进阶专题'],
+    ['sec-all','命令全表 A–Z'],
+  ];
+  const tocEl = document.getElementById('toc');
+  tocItems.forEach(([id,label])=>{
+    const a=document.createElement('a');a.href='#'+id;a.textContent='• '+label;tocEl.appendChild(a);
+  });
+
+  // 搜索过滤
+  const q=document.getElementById('q');
+  const clearBtn=document.getElementById('clearBtn');
+  function filter(){
+    const val = q.value.trim().toLowerCase();
+    document.querySelectorAll('.card, details').forEach(el=>{
+      const text = (el.innerText||'').toLowerCase();
+      el.style.display = val && !text.includes(val) ? 'none':'block';
+    });
+  }
+  q.addEventListener('input', filter);
+  clearBtn.onclick=()=>{q.value='';filter();q.focus();}
+
+  // 复制按钮
+  document.querySelectorAll('pre.code').forEach(()=>{});
+  document.querySelectorAll('pre.code, pre.cmd').forEach(pre=>{
+    const btn=document.createElement('button');btn.className='copy';btn.textContent='复制';
+    btn.onclick=()=>{navigator.clipboard.writeText(pre.innerText);btn.textContent='已复制';setTimeout(()=>btn.textContent='复制',1200)};
+    pre.parentElement.insertBefore(btn, pre.nextSibling);
+  });
+
+  // 命令全表数据（高层 + 底层，覆盖常见 git help -a 项）
+  const commands = [
+    // porcelain 常用
+    ['add','把变化加入暂存区'],
+    ['am','应用由邮件生成的补丁序列'],
+    ['annotate','同 git blame，显示每行最后修改者'],
+    ['apply','应用补丁但不创建提交'],
+    ['archive','导出仓库树为压缩包或目录'],
+    ['bisect','二分查找引入问题的提交'],
+    ['blame','逐行追溯修改来源'],
+    ['branch','管理分支'],
+    ['bundle','把对象与引用打包为单文件以便传输'],
+    ['checkout','检出（旧命令，建议用 switch/restore）'],
+    ['cherry-pick','拣选一个或多个提交到当前分支'],
+    ['citool','图形化提交工具（如安装了 git-gui）'],
+    ['clean','清理未跟踪文件/目录'],
+    ['clone','克隆远端仓库'],
+    ['commit','记录一次提交'],
+    ['describe','用最近的标签描述提交'],
+    ['diff','比较差异'],
+    ['fetch','从远端获取对象与引用'],
+    ['format-patch','把提交序列导出为邮件补丁'],
+    ['gc','垃圾回收与优化'],
+    ['grep','在版本库内容中搜索'],
+    ['gui','图形界面（若已安装）'],
+    ['init','初始化新仓库'],
+    ['log','查看提交历史'],
+    ['maintenance','周期性维护任务'],
+    ['merge','合并分支'],
+    ['mv','移动或重命名文件'],
+    ['notes','给对象添加备注'],
+    ['pull','fetch 后合并/变基'],
+    ['push','把分支/标签推送到远端'],
+    ['range-diff','对比两段提交序列差异'],
+    ['rebase','变基，重写提交基底/顺序'],
+    ['reset','移动分支指针，影响暂存/工作区'],
+    ['restore','恢复工作区或暂存区文件状态'],
+    ['revert','创建反向提交以撤销修改'],
+    ['rm','删除路径并记录到索引'],
+    ['send-email','通过邮件发送补丁'],
+    ['shortlog','按作者/主题汇总日志'],
+    ['show','显示对象详情（提交/文件/标签）'],
+    ['sparse-checkout','稀疏检出子集目录'],
+    ['stash','暂存未提交更改'],
+    ['status','显示工作区/暂存区状态'],
+    ['submodule','管理子模块'],
+    ['switch','切换分支（推荐替代 checkout 部分功能）'],
+    ['tag','创建/列出/验证标签'],
+    ['worktree','在同一仓库创建多个工作区'],
+
+    // plumbing 常见
+    ['cat-file','检查对象类型与内容'],
+    ['check-attr','查询路径的 gitattributes 属性'],
+    ['check-ignore','诊断 .gitignore 生效情况'],
+    ['check-mailmap','解析 mailmap 映射'],
+    ['check-ref-format','验证引用（分支/标签）命名格式'],
+    ['commit-graph','维护提交图文件以加速操作'],
+    ['commit-tree','从树对象创建提交对象'],
+    ['count-objects','统计松散对象与空间占用'],
+    ['credential','凭证子命令（fill/reject 等）'],
+    ['credential-cache','进程内缓存凭证'],
+    ['credential-store','明文文件存储凭证'],
+    ['daemon','Git 协议只读守护进程'],
+    ['diff-files','比较索引与工作区'],
+    ['diff-index','比较索引与指定树/提交'],
+    ['diff-tree','比较两棵树（提交之间差异）'],
+    ['fast-export','导出仓库为可导入流'],
+    ['fast-import','导入 fast-export 流'],
+    ['fetch-pack','底层拉取对象'],
+    ['for-each-ref','遍历并格式化输出引用'],
+    ['fsck','对象一致性检查'],
+    ['hash-object','计算/写入对象哈希'],
+    ['index-pack','读取打包对象到索引'],
+    ['ls-files','列出索引（暂存区）条目'],
+    ['ls-remote','列出远端引用'],
+    ['ls-tree','列出树对象内容'],
+    ['mailinfo','解析补丁邮件元信息'],
+    ['mailsplit','拆分 mbox 邮件文件'],
+    ['merge-base','求共同祖先或最佳合并基'],
+    ['merge-file','三方合并单个文件'],
+    ['merge-index','对索引中冲突条目执行合并驱动'],
+    ['merge-ours','把合并结果强制为 ours'],
+    ['merge-recursive','默认的三方合并实现'],
+    ['merge-tree','展示两树合并的虚拟结果'],
+    ['mktag','创建标签对象（底层）'],
+    ['mktree','从文本创建树对象'],
+    ['multi-pack-index','管理多包索引以加速查找'],
+    ['name-rev','把提交哈希解析为可读名字'],
+    ['pack-objects','把对象打包为 packfile'],
+    ['pack-redundant','检测冗余包文件'],
+    ['pack-refs','把松散引用打包'],
+    ['parse-remote','解析远端信息（内部使用）'],
+    ['prune','修剪不可达对象（危险操作）'],
+    ['prune-packed','删除已被 pack 包含的松散对象'],
+    ['read-tree','把树读入索引'],
+    ['receive-pack','服务端接收推送'],
+    ['reflog','管理引用变更历史日志'],
+    ['remote-https','HTTP(S) 远端传输助手'],
+    ['remote-fd','通过文件描述符的远端助手'],
+    ['remote-ext','通过外部命令的远端助手'],
+    ['replace','以替身对象替换引用对象'],
+    ['repack','重新打包对象以节省空间'],
+    ['rerere','重复冲突自动解决记录'],
+    ['rev-list','列出到某点为止的提交序列'],
+    ['rev-parse','解析修订版本/参数，输出哈希等'],
+    ['send-pack','低层推送到远端'],
+    ['shell','受限 git-shell'],
+    ['show-index','显示 pack 索引内容'],
+    ['show-ref','列出本地引用'],
+    ['stripspace','清理补丁中的空白与注释'],
+    ['symbolic-ref','读取/设置符号引用（如 HEAD）'],
+    ['unpack-file','解包 blob 到临时文件'],
+    ['unpack-objects','解包对象流到仓库'],
+    ['update-index','更新索引条目/模式/假冲突'],
+    ['update-ref','创建/更新/删除引用'],
+    ['update-server-info','生成哑协议需要的信息'],
+    ['upload-archive','服务端：响应 archive 请求'],
+    ['upload-pack','服务端：响应 fetch/clone'],
+    ['var','显示 Git 变量值'],
+    ['verify-commit','验证提交 GPG 签名'],
+    ['verify-pack','验证 pack 文件校验'],
+    ['verify-tag','验证标签 GPG 签名'],
+    ['whatchanged','旧式日志（类似 log -p，已不推荐）'],
+    ['write-tree','把索引写为树对象'],
+  ];
+
+  const grid = document.getElementById('all-grid');
+  commands.forEach(([name,desc])=>{
+    const card=document.createElement('div');card.className='card';card.setAttribute('data-tags', name+','+desc);
+    card.innerHTML=`<div class="row"><h3>git ${name}</h3><span class="chip">$ git ${name} --help</span></div>
+    <div class="desc">${desc}</div>
+    <pre class="cmd"><code>git ${name}</code></pre>`;
+    grid.appendChild(card);
+  });
+</script>
 </body>
 </html>
